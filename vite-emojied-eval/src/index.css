@@ -43,6 +43,10 @@ video {
   max-height: 100vh;
   position: relative;
 }
+#overlay {
+  position: absolute;
+  inset: 0 0 5rem 0;
+}
 .drifting {
   position: absolute;
   inset: 0;
@@ -53,5 +57,5 @@ video {
 }
 em-emoji-picker {
   position: absolute;
-  display: none;
+  height: min(50vh, 55ch);
 }

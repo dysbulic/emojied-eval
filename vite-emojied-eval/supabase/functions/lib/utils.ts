@@ -5,7 +5,7 @@ import {
 export const cors = (origin: string) => {
   const allowedOrigins = [
     /http:\/\/localhost(:\d+)?/,
-    /https:\/\/smart-reader-kappa.vercel.app/,
+    /https:\/\/code.trwb.live/,
   ]
 
   const headers = new Headers()

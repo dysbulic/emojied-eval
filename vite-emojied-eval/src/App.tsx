@@ -1,131 +1,102 @@
-import { ChakraProvider, Box, theme } from "@chakra-ui/react";
-// import { ColorModeSwitcher } from "./components/ColorModeSwitcher";
+import { Drifter } from './Drifter';
+// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+// import { AppContextProvider, useAppContext } from "./context/appContext";
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useAnimationFrame } from './utils'
+import EmojiPicker from './components/EmojiPicker';
 import "./App.css";
-import Header from "./layout/Header";
-import Footer from "./layout/Footer";
-import Chat from "./components/Chat";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AppContextProvider, useAppContext } from "./context/appContext";
-import { useEffect, useRef, useState } from "react";
 
-class Drifter {
-  elem
-  start
-  end
-  initial
-  height
-
-  constructor(
-    { parent, element, start, end, initial, height, content }:
-    {
-      parent: HTMLElement
-      element?: HTMLElement
-      start: number
-      end: number
-      initial: { x: number, y: number }
-      height: number
-      content: string
-    }
-  ) {
-    element ??= (() => {
-      const newElem = document.createElement('span')
-      newElem.classList.add('drifting')
-      console.debug({ ov: parent })
-      parent.appendChild(newElem)
-      return newElem
-    })()
-    this.elem = element
-    this.content = content
-    this.opacity = '0'
-
-    this.start = start ?? Number(element.dataset.start)
-    if(isNaN(this.start)) {
-      throw new Error(
-        '`.drifting` must have a `data-start` time or '
-        + '`Drifting` must have `{start}`.'
-      )
-    }
-
-    this.end = end ?? Number(element.dataset.end ?? this.start + 2500)
-
-    element.dataset.x ??= String(20 + Math.random() * 60)
-    this.initial = {
-      x: initial?.x ?? Number(element.dataset.x),
-      y: initial?.y ?? Number(element.dataset.y ?? 0),
-    }
-
-    this.height = height ?? Number(element.dataset.height ?? 40)
-  }
-
-  set left(x: string) {
-    this.elem.style.left = x
-  }
-
-  set top(y: string) {
-    this.elem.style.top = y
-  }
-
-  set opacity(o: string) {
-    this.elem.style.opacity = o
-  }
-
-  set content(content: string) {
-    this.elem.textContent = content
-  }
-
-  toString() {
-    return (
-      'Drifter('
-      + `${this.start}–${this.end}, `
-      + `<${this.initial.x}, ${this.initial.y}>, `
-      + `${this.elem.textContent})`
-    )
-  }
+type DrifterConfig = {
+  at: { x: number, y: number },
+  time: number,
 }
+
+type Point = { x: number, y: number }
 
 function App() {
   const overlay = useRef<HTMLDivElement>(null)
   const video = useRef<HTMLVideoElement>(null)
   const drifters = useRef<Array<Drifter>>([])
+  const picker = useRef<HTMLElement>(null)
+  const [newConfig, setNewConfig] = (
+    useState<DrifterConfig | null>(null)
+  )
+  const [wasPlaying, setWasPlaying] = useState<boolean>(true)
+  const [visible, setVisible] = useState<boolean>(false)
+  const [center, setCenter] = useState<Point>()
 
-  useEffect(() => {
-    if(drifters.current.length > 0) return
-    if(!overlay.current) return
-    drifters.current = [
-      new Drifter({
-        parent: overlay.current,
-        start: 0,
-        end: 10 * 1000,
-        initial: { x: 20, y: 0 },
-        height: 40,
-        content: '🏔',
-      })
-    ]
-  }, [])
+  const updatePositions = useCallback(
+    () => {
+      if(!video.current) throw new Error('<video> not found.')
+      const time = video.current.currentTime * 1000
+      drifters.current.forEach((drifter) => drifter.time = time)
+    },
+    [],
+  )
+  useAnimationFrame(updatePositions)
 
-  const updatePositions = () => {
-    if(!video.current) throw new Error('<video> not found.')
-    const time = video.current.currentTime * 1000
-    console.debug({ dl: drifters.current.length, time })
-    drifters.current.forEach((drifter) => {
-      console.debug({ d: drifter.toString() })
-      if(time >= drifter.start && time <= drifter.end) {
-        const progress = (time - drifter.start) / (drifter.end - drifter.start)
-        const x = `${drifter.initial.x + Math.cos(6 * Math.PI * progress)}%`
-        drifter.left = x
-        const y = `${-drifter.initial.y + 100 - (drifter.height * progress)}%`
-        drifter.top = y
-        drifter.opacity = String(1 - progress)
-      } else {
-        drifter.opacity = String(0)
+  console.debug({ o: picker })
+
+  const onClick = useCallback(
+    (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      if(!video.current) throw new Error('<video> not found.')
+      const at = { x: evt.clientX, y: evt.clientY }
+      setCenter(at)
+      console.debug('Setting `visible` to `true`.')
+      setVisible(true)
+      setNewConfig({ at, time: video.current.currentTime * 1000 })
+      setWasPlaying(!video.current.paused)
+      video.current.pause()
+    },
+    []
+  )
+
+  const onClose = () => {
+    if(!picker.current) {
+      throw new Error('Holder doesn’t exist.')
+    }
+
+    setVisible(false)
+    console.debug('Adding Listener')
+  }
+
+  const onEmojiSelect = (emoji, evt) => {
+    evt.cancelBubble = true
+
+    if(!newConfig) {
+      throw new Error('Emoji selected without initial config.')
+    }
+
+    Object.entries({ overlay, picker, video })
+    .forEach(([name, ref]) => {
+      if(!ref.current) {
+        throw new Error(`"${name}" doesn’t exist.`)
       }
     })
-    return requestAnimationFrame(updatePositions)
+
+    console.debug({ evt, emoji })
+
+    const drifter = new Drifter({
+      start: newConfig.time,
+      end: newConfig.time + 4 * 1000,
+      initial: {
+        x: newConfig.at.x / video.current!.clientWidth * 100,
+        y: 100 - newConfig.at.y / video.current!.clientHeight * 100,
+      },
+      content: emoji.native,
+      parent: overlay.current!,
+    })
+    drifters.current.push(drifter)
+
+    console.debug({ new: drifter.toString() })
+
+    setVisible(false)
+
+    console.debug('Adding Listener')
+    if(wasPlaying) video.current!.play()
   }
-  useEffect(() => {
-    const requestId = updatePositions()
-    return () => cancelAnimationFrame(requestId)
-  }, [])
+
+  console.debug({ iv: visible })
 
   return (
     <>
@@ -133,7 +104,17 @@ function App() {
         <source src="Big Buck Bunny trailer.webm" type="video/webm"/>
         <track default src="animated.vtt" kind="subtitles" label="Animated"/>
       </video>
-      <div id="overlay" ref={overlay}></div>
+      <div id="overlay" ref={overlay} {...{ onClick }}></div>
+      <EmojiPicker
+        ref={picker}
+        visible={visible}
+        {...{
+          onEmojiSelect,
+          onClose,
+          // visible,
+          center,
+        }}
+      />
     </>
   )
 }
