@@ -36,6 +36,7 @@ a:hover {
 
 html, body {
   margin: 0;
+  overflow: hidden;
 }
 video {
   width: 100%;
@@ -58,4 +59,10 @@ video {
 em-emoji-picker {
   position: absolute;
   height: min(50vh, 55ch);
+}
+#onscreen-keymap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }

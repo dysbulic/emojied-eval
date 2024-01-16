@@ -1,13 +1,5 @@
 import React from 'react'
 
-export const truncateText = (text, maxLength = 500) => {
-  if (text.length > maxLength) {
-    return text.substring(0, maxLength) + '…'
-  }
-  return text
-}
-
-
 export const useAnimationFrame = (
   callback: (Δt: number) => void,
   cleanup?: () => void

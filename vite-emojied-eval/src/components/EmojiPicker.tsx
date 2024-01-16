@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import Picker from '@emoji-mart/react'
 
 type PickerProps = {
-  onEmojiSelect: (emoji: unknown, evt: unknown) => void,
+  onEmojiSelect: (emoji: { native: string }, evt: PointerEvent) => void,
   onClose?: () => void,
   visible: boolean,
   center?: { x: number, y: number },
@@ -20,7 +20,7 @@ export const EmojiPicker = React.forwardRef<HTMLElement, PickerProps>(
     holder,
   ) => {
     const onClickOutside = () => {
-      // onClose?.()
+      onClose?.()
     }
 
     useEffect(() => {
@@ -34,10 +34,6 @@ export const EmojiPicker = React.forwardRef<HTMLElement, PickerProps>(
       )
       if(!pick) throw new Error('Picker not found.')
 
-      // const sheet = new CSSStyleSheet()
-      // sheet.replaceSync('#root { height: max(50vh, 35ch) }')
-      // pick.shadowRoot?.adoptedStyleSheets.push(sheet)
-
       const max = {
         x: document.documentElement.clientWidth,
         y: document.documentElement.clientHeight,
@@ -46,14 +42,14 @@ export const EmojiPicker = React.forwardRef<HTMLElement, PickerProps>(
         const bbox = {
           w: pick.clientWidth, h: pick.clientHeight,
         }
-        pick.style.left = `${center.x - bbox.w / 2}px`
+        pick.style.left = (
+          `${Math.min(max.x - bbox.w, Math.max(0, center.x - bbox.w / 2))}px`
+        )
         pick.style.top = (
           `${Math.min(max.y - bbox.h, Math.max(0, center.y - bbox.h / 2))}px`
         )
       }
     }, [holder, center])
-
-    console.debug({ visible })
 
     return (
       <section
