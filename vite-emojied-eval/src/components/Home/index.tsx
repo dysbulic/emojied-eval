@@ -2,9 +2,7 @@ import LoginButton from "../LoginButton"
 import tyl from './index.module.css'
 
 export const Home = () => (
-  <section className={tyl.main}>
-    <LoginButton/>
-  </section>
+  <LoginButton className={tyl.main}/>
 )
 
 export default Home

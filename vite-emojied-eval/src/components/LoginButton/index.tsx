@@ -1,5 +1,5 @@
 import { useAccount, useSignMessage } from 'wagmi'
-import { useEffect, useState } from 'react'
+import { HTMLAttributes, useEffect, useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import {
   nonceEndpoint, loginEndpoint, supabase as supaConfig,
@@ -7,7 +7,7 @@ import {
 import tyl from './index.module.css'
 import { ConnectKitButton } from 'connectkit';
 
-export const LoginButton = () => {
+export const LoginButton = (props: HTMLAttributes<HTMLElement>) => {
   const { address } = useAccount()
   const {
     data: signature, signMessage,
@@ -41,9 +41,9 @@ export const LoginButton = () => {
           },
           body: JSON.stringify({ address, signature, nonce }),
         })
-        const { token } = await response.json()
-        localStorage.setItem('token', token)
-        setJWT(token)
+        const { jwt } = await response.json()
+        localStorage.setItem('supabase-auth-jwt', jwt)
+        setJWT(jwt)
       }
     })()
   }, [address, nonce, signature])
@@ -58,21 +58,21 @@ export const LoginButton = () => {
     console.dir(await supabase.auth.getUser())
   }
 
-  if(!address) return <ConnectKitButton/>
-
-  if(!jwt) return (
-    <section>
-      <ConnectKitButton/>
-      <button className={tyl.login} onClick={login}>
-        {address ? 'Login' : 'Connect Wallet'}
-      </button>
-    </section>
-  )
-
   return (
-    <button onClick={testUser}>
-      Test User
-    </button>
+    <section {...props}>
+      <ConnectKitButton/>
+      {(() => {
+        if(!address) return null
+
+        if(!jwt) return (
+          <button className={tyl.login} onClick={login}>
+            {address ? 'Login' : 'Connect Wallet'}
+          </button>
+        )
+
+        return <button onClick={testUser}>Test User</button>
+      })()}
+    </section>
   )
 }
 

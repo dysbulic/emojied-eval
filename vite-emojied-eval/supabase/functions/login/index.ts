@@ -11,16 +11,19 @@ import {
   getNumericDate,
 } from 'https://deno.land/x/djwt@v3.0.1/mod.ts'
 
-function createErrorResponse(
-  error: string,
-  headers: Headers,
+function createErrorResponse({
+  error,
+  headers,
   statusCode = 400
-) {
-  console.debug({ error })
+}: {
+  error: Error | string,
+  headers: Headers,
+  statusCode?: number,
+}) {
   headers.append('Content-Type', 'application/json')
   return new Response(
-    JSON.stringify({ error }),
-    { headers, status: statusCode },
+    JSON.stringify({ error: error.message ?? error }),
+    { status: statusCode, headers },
   )
 }
 
@@ -65,12 +68,10 @@ serve(async (req) => {
 
   if(data.verification_nonce !== nonce) {
     return createErrorResponse(
-      `The nonces do not match. ${nonce} ≠ ${data?.auth.genNonce}.`,
+      `The nonces do not match. ${nonce} ≠ ${data.verification_nonce}.`,
       headers,
     )
   }
-
-  console.debug({ data })
 
   let authedUser
   if(!data.user_id) {
@@ -81,8 +82,7 @@ serve(async (req) => {
       })
     )
     if(error) {
-      console.error({ 'error creating user': error })
-      return createErrorResponse(error.message, headers)
+      return createErrorResponse(error, headers)
     }
     authedUser = user
   } else {
@@ -90,7 +90,7 @@ serve(async (req) => {
       await supabase.auth.admin.getUserById(data.user_id)
     )
     if (error) {
-      return createErrorResponse(error.message, headers)
+      return createErrorResponse(error, headers)
     }
     authedUser = user
   }
@@ -105,7 +105,7 @@ serve(async (req) => {
   .select()
 
   if(error) {
-    return createErrorResponse(error.message, headers)
+    return createErrorResponse(error, headers)
   }
 
   const jwtSecret = Deno.env.get('JWT_SECRET')
@@ -114,17 +114,19 @@ serve(async (req) => {
   }
 
   const encoder = new TextEncoder()
-  const jwtSecretUint8Array = encoder.encode(jwtSecret)
+  const rawJWTSecret = encoder.encode(jwtSecret)
 
   console.debug({ kl: jwtSecretUint8Array.length })
 
   const key = await crypto.subtle.importKey(
     'raw', // format of the key's data
-    jwtSecretUint8Array,
+    rawJWTSecret,
     { name: 'HMAC', hash: 'SHA-256' },
     true, // whether the key is extractable
     ['sign', 'verify'], // key usages
   )
+  console.debug({ key })
+
   const payload: Payload = {
     // iss: 'joe',
     aud: authedUser.aud,
@@ -139,8 +141,9 @@ serve(async (req) => {
 
   console.dir(await decode(jwt))
   console.dir(await decode(Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')))
+  console.dir(await decode(Deno.env.get('SUPABASE_ANON_KEY')))
 
   return new Response(
-    JSON.stringify({ token: jwt }), { headers }
+    JSON.stringify({ jwt }), { headers }
   )
 })
