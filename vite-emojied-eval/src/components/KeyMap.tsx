@@ -41,8 +41,6 @@ export const KeyMap = (
     }
   }, [active, keys, onSelect])
 
-  console.debug({ active })
-
   if(!active) return null
 
   return (

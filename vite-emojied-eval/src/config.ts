@@ -29,4 +29,5 @@ export const supabase = {
   // url: 'https://jurofxjocjfgtkcwofmn.supabase.co',
   url: 'http://localhost:54321',
 }
+export const loginEndpoint = `${supabase.url}/functions/v1/login`
 export const nonceEndpoint = `${supabase.url}/functions/v1/nonce`

@@ -1,7 +1,3 @@
-// Follow this setup guide to integrate the Deno language server with your editor:
-// https://deno.land/manual/getting_started/setup_your_environment
-// This enables autocomplete, go to definition, etc.
-
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import {
@@ -10,46 +6,55 @@ import {
   supaConfig,
 } from '../lib/utils.ts'
 
-const SUPABASE_USERS_TABLE = 'auth.users'
+const ADDRESSES_TABLE = 'addresses'
 
 serve(async (req) => {
-  const { method, headers: reqHeaders } = req
-  const origin = reqHeaders.get('Origin')
-  const headers = cors(origin)
+  try {
+    const { method, headers: reqHeaders } = req
+    const origin = reqHeaders.get('Origin')
+    const headers = cors(origin)
 
-  if(method === 'OPTIONS') {
-    return new Response(null, { headers })
-  }
+    if(method === 'OPTIONS') {
+      return new Response(null, { headers })
+    }
 
-  const { address } = await req.json()
-  const nonce = genNonce()
+    const { address } = await req.json()
+    if(!address) throw new Error('Missing address.')
 
-  const supabase = createClient(
-    supaConfig.url, supaConfig.serviceRoleKey
-  )
-  const { status, statusText } = (
-    await supabase.from(SUPABASE_USERS_TABLE).upsert(
-      [{
-        address,
-        auth: {
-          genNonce: nonce,
-          lastAuth: new Date().toISOString(),
-          lastAuthStatus: 'pending',
-        },
-      }],
-      { onConflict: 'address' },
+    const nonce = genNonce()
+
+    console.debug({ supaConfig })
+
+    const supabase = createClient(
+      supaConfig.url, supaConfig.serviceRoleKey
     )
-    .select()
-  )
-  headers.append('Content-Type', 'application/json')
+    const { status, statusText, error } = (
+      await supabase.from(ADDRESSES_TABLE).upsert(
+        [{
+          address,
+          verification_nonce: nonce,
+        }],
+        { onConflict: 'address' },
+      )
+      .select()
+    )
+    headers.append('Content-Type', 'application/json')
 
-  if(status >= 400) {
-    throw new Error(
-      `Error Upserting User: "${statusText}" (${status})`
+    if(status >= 400) {
+      throw new Error(
+        `Error Upserting User: "${statusText}" (${status})`,
+        { cause: JSON.stringify(error, null, 2) },
+      )
+    }
+
+    return new Response(
+      JSON.stringify({ nonce }), { headers }
+    )
+  } catch(err) {
+    console.error({ err })
+    return new Response(
+      JSON.stringify({ error: err.message, stack: err.stack }),
+      { status: 500 }
     )
   }
-
-  return new Response(
-    JSON.stringify({ nonce }), { headers }
-  )
 })
