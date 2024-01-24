@@ -1,11 +1,10 @@
 import { useAccount, useSignMessage } from 'wagmi'
 import { HTMLAttributes, useEffect, useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { ConnectKitButton } from 'connectkit';
 import {
-  nonceEndpoint, loginEndpoint, supabase as supaConfig,
+  endpoints, supabase as supaConfig,
 } from '../../config.ts'
 import tyl from './index.module.css'
-import { ConnectKitButton } from 'connectkit';
 
 export const LoginButton = (props: HTMLAttributes<HTMLElement>) => {
   const { address } = useAccount()
@@ -16,7 +15,7 @@ export const LoginButton = (props: HTMLAttributes<HTMLElement>) => {
   const [jwt, setJWT] = useState<string>()
 
   const login = async () => {
-    const response = await fetch(nonceEndpoint, {
+    const response = await fetch(endpoints.nonce, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -26,14 +25,19 @@ export const LoginButton = (props: HTMLAttributes<HTMLElement>) => {
     })
     const { nonce } = await response.json()
     setNonce(nonce)
-    const message = `Authenticate ${address} for access using "${nonce}".`
+    const message = `Authenticate ${address} for access using nonce: "${nonce}".`
     signMessage({ message })
+  }
+
+  const logout = () => {
+    localStorage.removeItem(supaConfig.jwtStorageKey)
+    setJWT(undefined)
   }
 
   useEffect(() => {
     (async () => {
       if(signature) {
-        const response = await fetch(loginEndpoint, {
+        const response = await fetch(endpoints.nonce, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -42,21 +46,11 @@ export const LoginButton = (props: HTMLAttributes<HTMLElement>) => {
           body: JSON.stringify({ address, signature, nonce }),
         })
         const { jwt } = await response.json()
-        localStorage.setItem('supabase-auth-jwt', jwt)
+        localStorage.setItem(supaConfig.jwtStorageKey, jwt)
         setJWT(jwt)
       }
     })()
   }, [address, nonce, signature])
-
-  const testUser = async () => {
-    const headers = { Authorization: `Bearer ${jwt}` }
-    const supabase = await createClient(
-      supaConfig.url,
-      supaConfig.anonKey,
-      { global: { headers } },
-    )
-    console.dir(await supabase.auth.getUser())
-  }
 
   return (
     <section {...props}>
@@ -70,7 +64,11 @@ export const LoginButton = (props: HTMLAttributes<HTMLElement>) => {
           </button>
         )
 
-        return <button onClick={testUser}>Test User</button>
+        return (
+          <button className={tyl.login} onClick={logout}>
+            Logout
+          </button>
+        )
       })()}
     </section>
   )

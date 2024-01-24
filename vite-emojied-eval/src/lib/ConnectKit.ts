@@ -5,12 +5,14 @@ export const config = createConfig(
   getDefaultConfig({
     // Required
     alchemyId: (
-      process.env.NEXT_PUBLIC_ALCHEMY_ID
+      process.env.VITE_ALCHEMY_ID
       ?? (() => { throw new Error('Missing $ALCHEMY_ID') })()
     ), // or infuraId
     walletConnectProjectId: (
-      process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
-      ?? (() => { throw new Error('Missing $NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID') })()
+      process.env.VITE_WALLETCONNECT_PROJECT_ID
+      ?? (() => {
+        throw new Error('Missing $WALLETCONNECT_PROJECT_ID')
+      })()
     ),
     appName: 'Serial Mobbing',
 

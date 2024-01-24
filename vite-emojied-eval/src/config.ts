@@ -28,6 +28,9 @@ export const supabase = {
   anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0',
   // url: 'https://jurofxjocjfgtkcwofmn.supabase.co',
   url: 'http://localhost:54321',
+  jwtStorageKey: 'supabase-auth-jwt',
 }
-export const loginEndpoint = `${supabase.url}/functions/v1/login`
-export const nonceEndpoint = `${supabase.url}/functions/v1/nonce`
+export const endpoints = {
+  login: `${supabase.url}/functions/v1/login`,
+  nonce: `${supabase.url}/functions/v1/nonce`,
+}

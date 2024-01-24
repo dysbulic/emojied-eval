@@ -7,9 +7,8 @@ import {
   Header,
   Payload,
   create as createJWT,
-  decode,
-  getNumericDate,
 } from 'https://deno.land/x/djwt@v3.0.1/mod.ts'
+// import { decode as b64Decode } from "https://deno.land/std/encoding/base64.ts"
 
 function createErrorResponse({
   error,
@@ -39,13 +38,11 @@ serve(async (req) => {
   const { address, signature, nonce } = await req.json()
 
   const message = (
-    `Authenticate ${address} for access using "${nonce}".`
+    `Authenticate ${address} for access using nonce: "${nonce}".`
   )
   const signer = ethers.verifyMessage(message, signature)
 
-  if(signer === address) {
-    console.debug('The message was signed by the expected address.')
-  } else {
+  if(signer !== address) {
     return createErrorResponse(
       `The message wasn’t signed by the expected address. ${signer} ≠ ${address}.`,
       headers,
@@ -54,7 +51,7 @@ serve(async (req) => {
 
   const supabase = createClient<Database>(
     Deno.env.get('SUPABASE_URL') as string,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string // service role key required for row creation/editing
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string
   )
   const { data } = (
     await supabase.from('addresses')
@@ -65,7 +62,6 @@ serve(async (req) => {
   if(data == null) {
     return createErrorResponse('The public user does not exist.', headers)
   }
-
   if(data.verification_nonce !== nonce) {
     return createErrorResponse(
       `The nonces do not match. ${nonce} ≠ ${data.verification_nonce}.`,
@@ -110,13 +106,14 @@ serve(async (req) => {
 
   const jwtSecret = Deno.env.get('JWT_SECRET')
   if (!jwtSecret) {
-    throw new Error('Please set the $JWT_SECRET environment variable.')
+    throw new Error(
+      'Please set the $JWT_SECRET environment variable.'
+    )
   }
 
   const encoder = new TextEncoder()
   const rawJWTSecret = encoder.encode(jwtSecret)
-
-  console.debug({ kl: jwtSecretUint8Array.length })
+  // const rawJWTSecret = b64Decode(jwtSecret)
 
   const key = await crypto.subtle.importKey(
     'raw', // format of the key's data
@@ -125,23 +122,18 @@ serve(async (req) => {
     true, // whether the key is extractable
     ['sign', 'verify'], // key usages
   )
-  console.debug({ key })
 
   const payload: Payload = {
-    // iss: 'joe',
+    iss: 'https://code.trwb.live',
+    sub: authedUser.id,
     aud: authedUser.aud,
     email: authedUser.email,
     role: authedUser.role,
     address,
-    sub: authedUser.id,
-    exp: getNumericDate(60 * 60),
+    exp: new Date().getTime() + 1000 * 60 * 60 * 24 * 7,
   }
   const header: Header = { alg: 'HS256', typ: 'JWT' }
   const jwt = await createJWT(header, payload, key)
-
-  console.dir(await decode(jwt))
-  console.dir(await decode(Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')))
-  console.dir(await decode(Deno.env.get('SUPABASE_ANON_KEY')))
 
   return new Response(
     JSON.stringify({ jwt }), { headers }
