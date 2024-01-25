@@ -10,4 +10,3 @@ CREATE TABLE addresses (
       ON UPDATE CASCADE
       ON DELETE SET NULL
 );
-```
