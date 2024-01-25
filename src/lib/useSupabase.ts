@@ -28,7 +28,6 @@ export const useSupabase = () => {
         }
 
         const client = createClient(supaConfig.url, jwt)
-        console.debug({ client })
         setSupabase(client)
       } catch(err) {
         setError((err as Error).message)
@@ -42,8 +41,6 @@ export const useSupabase = () => {
     hasJWT: !!localStorage.getItem(supaConfig.jwtStorageKey),
   }
   if(error) ret.error = error
-  console.debug({ ret })
-
   return ret
 }
 

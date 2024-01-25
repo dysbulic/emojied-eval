@@ -5,7 +5,7 @@ import tyl from './index.module.css'
 
 export const Home = () => {
   const { supabase, hasJWT, error: supaError } = useSupabase()
-  let content = null
+  let content
 
   if(!hasJWT) {
     content = <LoginButton/>
@@ -20,7 +20,7 @@ export const Home = () => {
   return (
     content ? (
       <section id="home" className={tyl.main}>
-        <img src="/banner.svg" alt="Serial Mobbing"/>
+        <object data="/banner.svg"/>
         {content}
       </section>
     ) : (

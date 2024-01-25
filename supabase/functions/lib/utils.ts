@@ -1,6 +1,10 @@
 import {
   cryptoRandomString
 } from 'https://deno.land/x/crypto_random_string@1.0.0/mod.ts'
+import { getIronSession } from 'https://esm.sh/iron-session@latest'
+import {
+  getCookies, setCookie,
+} from "https://deno.land/std/http/mod.ts";
 
 export const cors = (origin: string) => {
   const allowedOrigins = [
@@ -25,8 +29,8 @@ export const cors = (origin: string) => {
   return headers
 }
 
-export const nonce = (length = 13) => (
-  cryptoRandomString({ length, type: 'url-safe' })
+export const getNonce = ({ length = 13 }) => (
+  cryptoRandomString({ length, type: 'alphanumeric' })
 )
 
 export const supaConfig = {
@@ -43,3 +47,34 @@ export const supaConfig = {
     ) })()
   ),
 }
+
+export const getSession = ({ reqHeaders, resHeaders}) => (
+  getIronSession({
+    get: (name) => {
+      const cookies = getCookies(reqHeaders)
+      return cookies[name]
+     },
+     set: (...args) => {
+      if(args.length > 3) {
+        throw new Error(`${args.length} arguments passed to \`cookies.set\`.`)
+      }
+      let opts
+      if(args.length === 3) {
+        opts = args[2]
+        opts.value = args[1]
+      } else if(args.length === 2) {
+        opts = args[1]
+      }
+      setCookie(resHeaders, args[0], opts)
+    },
+  }, {
+    password: (
+      Deno.env.get('SESSION_PASSWORD')
+      ?? (() => { throw new Error('No `$SESSION_PASSWORD`.') })()
+    ),
+    cookieName: 'mobbing-iron-session',
+    cookieOptions: {
+      secure: Boolean(Deno.env.get('SECURE_SESSION') ?? false),
+    },
+  })
+)

@@ -1,10 +1,12 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { cors, getNonce, getSession } from '../lib/utils.ts'
+// import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { cors, getSession } from '../lib/utils.ts'
 
 serve(async (req) => {
   const { method, headers: reqHeaders } = req
   const origin = reqHeaders.get('Origin')
   const headers = cors(origin)
+  headers.append('Content-Type', 'appplication/json')
 
   try {
     if(method === 'OPTIONS') {
@@ -14,17 +16,13 @@ serve(async (req) => {
     const iron = await getSession({
       reqHeaders, resHeaders: headers,
     })
-    const nonce = getNonce({
-      length: 26 + (Math.floor(Math.random() * 13) - 6)
-    })
-    iron.nonce = nonce
-    iron.save()
 
-    headers.append('Content-Type', 'text/plain')
-    return new Response(nonce, { headers })
+    return new Response(
+      { address: iron.address, chainId: iron.chainId },
+      { headers },
+    )
   } catch(err) {
     console.error({ err })
-    headers.append('Content-Type', 'appplication/json')
     return new Response(
       JSON.stringify({ error: err.message, stack: err.stack }),
       { status: 500 }

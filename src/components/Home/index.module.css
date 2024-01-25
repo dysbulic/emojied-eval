@@ -4,6 +4,10 @@
   align-items: center;
   justify-content: center;
 
+  & object {
+    height: 50vh;
+  }
+
   & button {
     margin-top: 3vh;
     font-size: 15pt;

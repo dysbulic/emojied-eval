@@ -1,7 +1,9 @@
-import { ConnectKitProvider /*, type SIWESession*/} from 'connectkit'
+import {
+  ConnectKitProvider, SIWEProvider,
+} from 'connectkit'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query' 
 import { WagmiConfig } from 'wagmi'
-import { ConnectKit as CKConfig } from '../config'
+import { ConnectKit as CKConfig, SIWE as SIWEConfig } from '../config'
 import { useState } from 'react'
 
 export function WalletProviders(
@@ -11,11 +13,13 @@ export function WalletProviders(
 
   return (
     <WagmiConfig config={CKConfig}>
-      <ConnectKitProvider>
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
-      </ConnectKitProvider>
+      <SIWEProvider {...SIWEConfig}>
+        <ConnectKitProvider>
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
+        </ConnectKitProvider>
+      </SIWEProvider>
     </WagmiConfig>
   )
 }

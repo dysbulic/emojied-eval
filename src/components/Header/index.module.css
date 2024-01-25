@@ -1,0 +1,8 @@
+.header {
+  display: flex;
+  max-height: 15vh;
+
+  & img {
+    height: auto;
+  }
+}

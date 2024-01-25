@@ -1,10 +1,10 @@
-import { ConnectKitButton } from "connectkit"
-import LoginButton from '../LoginButton';
+import LoginButton from '../LoginButton'
+import Logo from '../Logo'
+import tyl from './index.module.css'
 
 export const Header = () => (
-  <header>
+  <header className={tyl.header}>
     <Logo/>
-    <ConnectKitButton/>
     <LoginButton/>
   </header>
 )

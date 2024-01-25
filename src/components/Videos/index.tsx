@@ -1,9 +1,12 @@
 import { useSupabase } from '../../lib/useSupabase'
 import { useQuery } from '@tanstack/react-query'
+import Header from '../Header/index';
 
 export const Videos = () => {
-  const { supabase, hasJWT, error: supaError } = useSupabase()
-  const { isLoading, error: queryError, data } = useQuery({
+  const { supabase, error: supaError } = useSupabase()
+  const {
+    isLoading: loading, error: queryError, data: videos,
+  } = useQuery({
     queryKey: ['Videos', { supabase }],
     enabled: !!supabase,
     queryFn: async () => {
@@ -15,13 +18,26 @@ export const Videos = () => {
     }
   })
 
+  if(supaError) throw supaError
   if(queryError) throw queryError
 
+  if(loading) return <h1>Loading…</h1>
+
   return (
-    <article id={}>
+    <article id={'t'}>
       <Header/>
       <main>
         <h1>Videos</h1>
+        <ol>
+          {videos?.map((vid) => (
+            <li key={vid.id}>
+              <h2><a href={vid.url}>
+                {vid.title}
+              </a></h2>
+              <div>{vid.description}</div>
+            </li>
+          ))}
+        </ol>
       </main>
     </article>
   )
