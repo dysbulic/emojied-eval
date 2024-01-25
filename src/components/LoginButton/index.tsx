@@ -37,7 +37,7 @@ export const LoginButton = (props: HTMLAttributes<HTMLElement>) => {
   useEffect(() => {
     (async () => {
       if(signature) {
-        const response = await fetch(endpoints.login, {
+        const response = await fetch(endpoints.nonce, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
