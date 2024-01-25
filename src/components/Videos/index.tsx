@@ -8,19 +8,23 @@ export const Videos = () => {
     enabled: !!supabase,
     queryFn: async () => {
       const { data, error } = (
-        await supabase
-        ?.from('videos')
-        .select()
+        await supabase?.from('videos').select()
       ) ?? {}
       if(error) throw error 
       return data
     }
   })
+
   if(queryError) throw queryError
 
-  let content = null
-
-  return null
+  return (
+    <article id={}>
+      <Header/>
+      <main>
+        <h1>Videos</h1>
+      </main>
+    </article>
+  )
 }
 
 export default Videos
