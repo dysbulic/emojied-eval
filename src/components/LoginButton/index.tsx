@@ -1,10 +1,16 @@
 import { HTMLAttributes } from 'react'
-import { ConnectKitButton } from 'connectkit';
+import { ConnectKitButton, useModal } from 'connectkit'
+import { supabase as supaConfig } from '../../config' 
 
-export const LoginButton = (props: HTMLAttributes<HTMLElement>) => (
-  <section {...props}>
-    <ConnectKitButton/>
-  </section>
-)
+export const LoginButton = (props: HTMLAttributes<HTMLElement>) => {
+  useModal({ onDisconnect: () => (
+    localStorage.removeItem(supaConfig.jwtStorageKey)
+  )})
+  return (
+    <section {...props}>
+      <ConnectKitButton/>
+    </section>
+  )
+}
 
 export default LoginButton

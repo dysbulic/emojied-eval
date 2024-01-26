@@ -1,6 +1,8 @@
 import { useSupabase } from '../../lib/useSupabase'
 import { useQuery } from '@tanstack/react-query'
 import Header from '../Header/index';
+import VideoForm from '../VideoForm';
+
 
 export const Videos = () => {
   const { supabase, error: supaError } = useSupabase()
@@ -18,6 +20,7 @@ export const Videos = () => {
     }
   })
 
+
   if(supaError) throw supaError
   if(queryError) throw queryError
 
@@ -28,10 +31,11 @@ export const Videos = () => {
       <Header/>
       <main>
         <h1>Videos</h1>
+        <VideoForm/>
         <ol>
           {videos?.map((vid) => (
             <li key={vid.id}>
-              <h2><a href={vid.url}>
+              <h2><a href={`eval/${vid.id}`}>
                 {vid.title}
               </a></h2>
               <div>{vid.description}</div>

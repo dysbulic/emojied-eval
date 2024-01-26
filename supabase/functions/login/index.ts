@@ -36,7 +36,7 @@ serve(async (req) => {
 
   try {
     const iron = await getSession({
-      reqHeaders: req.headers, resHeaders: headers,
+      reqHeaders, resHeaders: headers,
     })
     const { message, signature } = await req.json()
     const msg = new SiweMessage(message)
@@ -44,12 +44,14 @@ serve(async (req) => {
       await msg.verify({ signature, nonce: iron.nonce })
     )
   
-    console.debug({ fields })
+    // console.debug({ fields })
 
     iron.nonce = undefined
     iron.address = address
     iron.chainId = chainId
     await iron.save();
+
+    console.debug({ iron, d: JSON.stringify(headers.get('set-cookie')).match(/........................................../g) })
 
     const supabase = createClient<Database>(
       Deno.env.get('SUPABASE_URL') as string,
@@ -67,7 +69,7 @@ serve(async (req) => {
       return createErrorResponse({ error, headers })
     }
 
-    console.debug({ byAddy })
+    // console.debug({ byAddy })
 
     let authedUser
     if(!byAddy.user_id) {
@@ -137,6 +139,7 @@ serve(async (req) => {
     const jwt = await createJWT(header, payload, key)
 
     headers.append('Content-Type', 'text/plain')
+    console.debug({ headers })
     return new Response(jwt, { headers })
   } catch (error) {
     switch (error) {

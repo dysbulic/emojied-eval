@@ -1,11 +1,15 @@
 // import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 // import { AppContextProvider, useAppContext } from "./context/appContext";
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, Suspense } from 'react'
+import { useParams } from 'react-router-dom'
 import toast, { Toaster } from 'react-hot-toast'
+import { useQuery } from '@tanstack/react-query'
 import { useAnimationFrame } from '../utils'
 import { Drifter } from '../Drifter'
 import { EmojiPicker } from './EmojiPicker'
 import { KeyMap } from './KeyMap'
+import { useSupabase } from '../lib/useSupabase'
+import Video from './Video'
 
 type DrifterConfig = {
   at?: { x: number, y: number },
@@ -14,7 +18,7 @@ type DrifterConfig = {
 
 export type Point = { x: number, y: number }
 
-function Reactor() {
+export const Reactor = () => {
   const overlay = useRef<HTMLDivElement>(null)
   const video = useRef<HTMLVideoElement>(null)
   const drifters = useRef<Array<Drifter>>([])
@@ -30,7 +34,24 @@ function Reactor() {
   const [keyMapActive, setKeyMapActive] = (
     useState<boolean>(false)
   )
-
+  const { supabase } = useSupabase()
+  const { uuid: videoUUID } = useParams()
+  console.log({ videoUUID})
+  const {
+    isLoading: loading, error: queryError, data: videoConfig,
+  } = useQuery({
+    queryKey: ['Reactor', { supabase }],
+    enabled: !!supabase,
+    queryFn: async () => {
+      const { data, error } = (
+        await supabase?.from('videos')
+        .select().single()
+        .eq('id', videoUUID)
+      ) ?? {}
+      if(error) throw error 
+      return data
+    }
+  })
   const updatePositions = useCallback(
     () => {
       if(!video.current) throw new Error('<video> not found.')
@@ -166,13 +187,17 @@ function Reactor() {
     setNewConfig({ ...newConfig, at })
     setWasPlaying(!video.current.paused)
     video.current.pause()
- }
+  }
+
+  if(!videoConfig) {
+    throw new Promise((resolve) => setTimeout(resolve, 2000)) 
+  }
 
   return (
     <>
       <Toaster/>
-      <video controls muted autoPlay ref={video}>
-        <source src="Big Buck Bunny trailer.webm" type="video/webm"/>
+      <video controls muted autoPlay ref={video}> 
+        <source src={videoConfig.url}/>
         <track default src="animated.vtt" kind="subtitles" label="Animated"/>
       </video>
       <div id="overlay" ref={overlay} {...{ onClick }}></div>

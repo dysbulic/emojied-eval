@@ -1,5 +1,5 @@
 .header {
-  display: flex;
+  display: inline-flex;
   max-height: 15vh;
 
   & img {

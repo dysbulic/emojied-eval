@@ -10,7 +10,6 @@ serve(async (req) => {
     if(method === 'OPTIONS') {
       return new Response(null, { headers })
     }
-
     const iron = await getSession({
       reqHeaders, resHeaders: headers,
     })
@@ -19,11 +18,14 @@ serve(async (req) => {
     })
     iron.nonce = nonce
     iron.save()
+    console.debug({ h: JSON.stringify(headers, null, 2) })
 
     headers.append('Content-Type', 'text/plain')
+    // headers.append('Set-Cookie', 'test=NOW' )
+
     return new Response(nonce, { headers })
   } catch(err) {
-    console.error({ err })
+    // console.error({ err })
     headers.append('Content-Type', 'appplication/json')
     return new Response(
       JSON.stringify({ error: err.message, stack: err.stack }),

@@ -53,8 +53,8 @@ export const getSession = ({ reqHeaders, resHeaders}) => (
     get: (name) => {
       const cookies = getCookies(reqHeaders)
       return cookies[name]
-     },
-     set: (...args) => {
+    },
+    set: (...args) => {
       if(args.length > 3) {
         throw new Error(`${args.length} arguments passed to \`cookies.set\`.`)
       }
@@ -65,15 +65,19 @@ export const getSession = ({ reqHeaders, resHeaders}) => (
       } else if(args.length === 2) {
         opts = args[1]
       }
-      setCookie(resHeaders, args[0], opts)
+      opts.name = args[0]
+      // console.debug({ opts })
+      setCookie(resHeaders, opts)
+      // console.debug({ resHeaders })
     },
   }, {
     password: (
-      Deno.env.get('SESSION_PASSWORD')
-      ?? (() => { throw new Error('No `$SESSION_PASSWORD`.') })()
+      Deno.env.get('SESSION_SECRET')
+      ?? (() => { throw new Error('No `$SESSION_SECRET`.') })()
     ),
     cookieName: 'mobbing-iron-session',
     cookieOptions: {
+      httpOnly: false,
       secure: Boolean(Deno.env.get('SECURE_SESSION') ?? false),
     },
   })
