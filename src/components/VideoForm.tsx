@@ -20,7 +20,7 @@ export const VideoForm = () => {
     })
   }
   return (
-    <form {...{ onSubmit }}>
+    <form {...{ onSubmit }} method="dialog">
       <label>
         <h3>URL</h3>
         <input id="url" required/>

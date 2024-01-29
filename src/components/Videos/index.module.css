@@ -1,0 +1,22 @@
+.header {
+  display: flex;
+}
+
+.olTable {
+  & ol {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
+    & li {
+      display: contents;
+
+      & > * {
+        align-self: center;
+      }
+
+      & h2 {
+        margin: 0;
+      }
+    }
+  }
+}

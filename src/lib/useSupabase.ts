@@ -27,9 +27,9 @@ export const useSupabase = () => {
           throw new Error(`JWT has expired (${new Date(exp).toLocaleString()}).`)
         }
 
-        const client = createClient(supaConfig.url, jwt)
-        setSupabase(client)
+        setSupabase(createClient(supaConfig.url, jwt))
       } catch(err) {
+        console.error({ err })
         setError((err as Error).message)
       }
     }

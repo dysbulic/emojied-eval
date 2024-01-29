@@ -33,14 +33,12 @@ export const Reactor = () => {
   const [keyMapActive, setKeyMapActive] = (
     useState<boolean>(false)
   )
-  const { supabase } = useSupabase()
+  const { supabase, error: supaError } = useSupabase()
+  if(supaError) console.error({ supaError })
   const { uuid: videoUUID } = useParams()
-  const {
-    /* isLoading: loading, */ error: queryError, data: videoConfig,
-  } = useQuery({
-    queryKey: ['Reactor', { supabase }],
-    enabled: !!supabase,
-    queryFn: async () => {
+  const queryFn = useCallback(
+    async () => {
+      if(!supabase) throw new Error('Supabase not initialized.')
       const { data, error } = (
         await supabase?.from('videos')
         .select()
@@ -49,14 +47,24 @@ export const Reactor = () => {
       ) ?? {}
       if(error) throw error 
       return data
-    }
+    },
+    [supabase, videoUUID],
+  )
+  const {
+    /* isLoading: loading, */ error: queryError, data: videoConfig,
+  } = useQuery({
+    queryKey: ['Reactor', { uuid: videoUUID, supabase }],
+    queryFn,
+    enabled: !!supabase,
+    // suspense: true,
   })
   if(queryError) console.error({ queryError })
   const updatePositions = useCallback(
     () => {
-      if(!video.current) throw new Error('<video> not found.')
-      const time = video.current.currentTime * 1000
-      drifters.current.forEach((drifter) => drifter.time = time)
+      if(video.current) {
+        const time = video.current.currentTime * 1000
+        drifters.current.forEach((drifter) => drifter.time = time)
+      }
     },
     [],
   )
@@ -189,9 +197,7 @@ export const Reactor = () => {
     video.current.pause()
   }
 
-  if(!videoConfig) {
-    throw new Promise((resolve) => setTimeout(resolve, 2000)) 
-  }
+  if(!videoConfig) return <h3>Loading…</h3>
 
   return (
     <>

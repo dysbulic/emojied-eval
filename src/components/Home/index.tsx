@@ -1,13 +1,15 @@
+import { useSIWE } from "connectkit"
 import useSupabase from "../../lib/useSupabase"
 import LoginButton from "../LoginButton"
 import Videos from "../Videos"
 import tyl from './index.module.css'
 
 export const Home = () => {
-  const { supabase, hasJWT, error: supaError } = useSupabase()
+  const { supabase, error: supaError } = useSupabase()
+  const { isSignedIn } = useSIWE()
   let content
 
-  if(!hasJWT) {
+  if(!isSignedIn) {
     content = <LoginButton/>
   } else if(supaError) {
     content = <p>Supabase Error: {supaError}</p>
