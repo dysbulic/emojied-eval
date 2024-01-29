@@ -1,14 +1,22 @@
+import { FormEvent } from 'react'
 import { useSupabase } from '../lib/useSupabase'
+
+interface FormElements extends HTMLFormControlsCollection {
+  url: HTMLInputElement,
+  title: HTMLInputElement,
+  description: HTMLInputElement,
+}
 
 export const VideoForm = () => {
   const { supabase } = useSupabase()
-  const onSubmit = async (evt) => {
+  const onSubmit = async (evt: FormEvent<HTMLFormElement>) => {
     evt.preventDefault()
-    console.debug({ url:evt.target.url.value })
+    if(!supabase) throw new Error('Supabase not defined.')
+    const elements = evt.currentTarget.elements as FormElements
     await supabase.from('videos').insert({
-      url: evt.target.url.value, 
-      title: evt.target.title.value, 
-      description: evt.target.description.value, 
+      url: elements.url.value,
+      title: elements.title.value,
+      description: elements.description.value,
     })
   }
   return (

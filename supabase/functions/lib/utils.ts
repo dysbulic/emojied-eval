@@ -22,7 +22,7 @@ export const cors = (origin: string) => {
   )
   headers.set(
     'Access-Control-Allow-Headers',
-    'Content-Type, Authorization'
+    'Content-Type, Authorization, *'
   )
   headers.set('Access-Control-Allow-Credentials', 'true')
 
@@ -48,10 +48,23 @@ export const supaConfig = {
   ),
 }
 
+export const ironSessionConfig = {
+  password: (
+    Deno.env.get('SESSION_SECRET')
+    ?? (() => { throw new Error('No `$SESSION_SECRET`.') })()
+  ),
+  cookieName: 'mobbing-iron-session',
+  cookieOptions: {
+    // httpOnly: false,
+    // secure: Boolean(Deno.env.get('SECURE_SESSION') ?? false),
+  },
+}
+
 export const getSession = ({ reqHeaders, resHeaders}) => (
   getIronSession({
     get: (name) => {
       const cookies = getCookies(reqHeaders)
+      console.debug({ name, val: cookies[name] })
       return cookies[name]
     },
     set: (...args) => {
@@ -66,19 +79,17 @@ export const getSession = ({ reqHeaders, resHeaders}) => (
         opts = args[1]
       }
       opts.name = args[0]
-      // console.debug({ opts })
       setCookie(resHeaders, opts)
-      // console.debug({ resHeaders })
     },
-  }, {
-    password: (
-      Deno.env.get('SESSION_SECRET')
-      ?? (() => { throw new Error('No `$SESSION_SECRET`.') })()
+    has: (name) => {
+      const cookies = getCookies(reqHeaders)
+      return !!cookies[name]
+    },
+    getAll: () => (
+      getCookies(reqHeaders)
     ),
-    cookieName: 'mobbing-iron-session',
-    cookieOptions: {
-      httpOnly: false,
-      secure: Boolean(Deno.env.get('SECURE_SESSION') ?? false),
+    delete: (name) => {
+      deleteCookie(resHeaders, name)
     },
-  })
+  }, ironSessionConfig)
 )

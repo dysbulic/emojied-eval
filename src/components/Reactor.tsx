@@ -1,6 +1,6 @@
 // import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 // import { AppContextProvider, useAppContext } from "./context/appContext";
-import { useCallback, useEffect, useRef, useState, Suspense } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import toast, { Toaster } from 'react-hot-toast'
 import { useQuery } from '@tanstack/react-query'
@@ -9,7 +9,6 @@ import { Drifter } from '../Drifter'
 import { EmojiPicker } from './EmojiPicker'
 import { KeyMap } from './KeyMap'
 import { useSupabase } from '../lib/useSupabase'
-import Video from './Video'
 
 type DrifterConfig = {
   at?: { x: number, y: number },
@@ -36,22 +35,23 @@ export const Reactor = () => {
   )
   const { supabase } = useSupabase()
   const { uuid: videoUUID } = useParams()
-  console.log({ videoUUID})
   const {
-    isLoading: loading, error: queryError, data: videoConfig,
+    /* isLoading: loading, */ error: queryError, data: videoConfig,
   } = useQuery({
     queryKey: ['Reactor', { supabase }],
     enabled: !!supabase,
     queryFn: async () => {
       const { data, error } = (
         await supabase?.from('videos')
-        .select().single()
+        .select()
         .eq('id', videoUUID)
+        .single()
       ) ?? {}
       if(error) throw error 
       return data
     }
   })
+  if(queryError) console.error({ queryError })
   const updatePositions = useCallback(
     () => {
       if(!video.current) throw new Error('<video> not found.')

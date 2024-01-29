@@ -1,5 +1,5 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { cors } from '../lib/utils.ts'
+import { cors, getSession } from '../lib/utils.ts'
 
 serve(async (req) => {
   const { method, headers: reqHeaders } = req
@@ -11,7 +11,7 @@ serve(async (req) => {
       return new Response(null, { headers })
     }
 
-    const iron = getSession({
+    const iron = await getSession({
       reqHeaders, resHeaders: headers,
     })
     iron.destroy()

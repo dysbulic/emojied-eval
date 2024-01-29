@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-// import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { cors, getSession } from '../lib/utils.ts'
+import { cors, getSession, ironSessionConfig } from '../lib/utils.ts'
+import { unsealData } from 'https://esm.sh/iron-session@latest'
+import { getCookies } from 'https://deno.land/std/http/mod.ts'
 
 serve(async (req) => {
   const { method, headers: reqHeaders } = req
@@ -16,10 +17,22 @@ serve(async (req) => {
     const iron = await getSession({
       reqHeaders, resHeaders: headers,
     })
+    let ret = iron
+    if(!(ret.address && ret.chainId)) {
+      const cookie = (
+        getCookies(reqHeaders)?.[ironSessionConfig.cookieName]
+      )
+      if(cookie) {
+        console.debug('Manually parsing cookie.')
+        ret = await unsealData(cookie, {
+          password: ironSessionConfig.password,
+          ttl: 60 * 60 * 24 * 14,
+        })
+      }
+    }
 
     return new Response(
-      { address: iron.address, chainId: iron.chainId },
-      { headers },
+      JSON.stringify(ret), { headers },
     )
   } catch(err) {
     console.error({ err })

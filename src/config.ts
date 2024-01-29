@@ -49,6 +49,7 @@ export const anonSupaFunc = async (
       'Authorization': `Bearer ${supabase.anonKey}`,
     },
     body: JSON.stringify(args),
+    credentials: 'include',
   })
 
   if(!response.ok) return { error: response.statusText }
