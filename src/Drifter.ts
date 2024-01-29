@@ -6,7 +6,7 @@ export class Drifter {
   height
 
   constructor(
-    { parent, element, start, end, initial, height, content }:
+    { parent, element, start, end, initial, height, content, className }:
     {
       parent: HTMLElement
       element?: HTMLElement
@@ -15,11 +15,12 @@ export class Drifter {
       initial: { x: number, y: number }
       height?: number
       content: string
+      className: string
     }
   ) {
     element ??= (() => {
       const newElem = document.createElement('span')
-      newElem.classList.add('drifting')
+      newElem.classList.add(className)
       parent.appendChild(newElem)
       return newElem
     })()

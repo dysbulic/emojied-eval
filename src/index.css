@@ -37,34 +37,7 @@ a:hover {
 html, body {
   margin: 0;
 }
-video {
-  width: 100%;
-  max-width: 100%;
-  max-height: 100vh;
-  position: relative;
-}
-#overlay {
-  position: absolute;
-  inset: 0 0 5rem 0;
-}
-.drifting {
-  position: absolute;
-  inset: 0;
-  font-size: max(7vw, 10vh);
-  translate: -50% -50%;
-  width: min-content;
-  height: min-content;
-}
-em-emoji-picker {
-  position: absolute;
-  height: min(50vh, 55ch);
-}
-#onscreen-keymap {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
+
 #home {
   display: flex;
   flex-direction: column;
@@ -76,4 +49,9 @@ em-emoji-picker {
     max-height: 50vh;
     aspect-ratio: 1;
   }
+}
+
+em-emoji-picker {
+  position: absolute;
+  height: min(50vh, 55ch);
 }

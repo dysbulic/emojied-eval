@@ -1,14 +1,13 @@
-// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-// import { AppContextProvider, useAppContext } from "./context/appContext";
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import toast, { Toaster } from 'react-hot-toast'
 import { useQuery } from '@tanstack/react-query'
-import { useAnimationFrame } from '../utils'
-import { Drifter } from '../Drifter'
-import { EmojiPicker } from './EmojiPicker'
-import { KeyMap } from './KeyMap'
-import { useSupabase } from '../lib/useSupabase'
+import { useAnimationFrame } from '../../utils'
+import { Drifter } from '../../Drifter'
+import { EmojiPicker } from '../EmojiPicker'
+import { KeyMap } from '../KeyMap'
+import { useSupabase } from '../../lib/useSupabase'
+import tyl from './index.module.css'
 
 type DrifterConfig = {
   at?: { x: number, y: number },
@@ -36,8 +35,11 @@ export const Reactor = () => {
   const { supabase, error: supaError } = useSupabase()
   if(supaError) console.error({ supaError })
   const { uuid: videoUUID } = useParams()
-  const queryFn = useCallback(
-    async () => {
+  const {
+    /* isLoading: loading, */ error: queryError, data: videoConfig,
+  } = useQuery({
+    queryKey: ['Reactor', { uuid: videoUUID, supabase }],
+    queryFn: async () => {
       if(!supabase) throw new Error('Supabase not initialized.')
       const { data, error } = (
         await supabase?.from('videos')
@@ -48,13 +50,6 @@ export const Reactor = () => {
       if(error) throw error 
       return data
     },
-    [supabase, videoUUID],
-  )
-  const {
-    /* isLoading: loading, */ error: queryError, data: videoConfig,
-  } = useQuery({
-    queryKey: ['Reactor', { uuid: videoUUID, supabase }],
-    queryFn,
     enabled: !!supabase,
     // suspense: true,
   })
@@ -91,7 +86,9 @@ export const Reactor = () => {
     if(pickerActive) setPickerActive(false)
   }
 
-  const onEmojiSelect = (emoji: { native: string }, evt: PointerEvent) => {
+  const onEmojiSelect = async (
+    emoji: { native: string }, evt: PointerEvent
+  ) => {
     evt.stopPropagation()
 
     if(!newConfig) {
@@ -103,19 +100,39 @@ export const Reactor = () => {
     if(!video.current) throw new Error('<video> ref is not set.')
     if(!overlay.current) throw new Error('Overlay ref is not set.')
 
-    const drifter = new Drifter({
-      start: newConfig.time,
-      end: newConfig.time + 4 * 1000,
-      initial: newConfig.at,
-      content: emoji.native,
+    const start = newConfig.time
+    const end = newConfig.time + 4 * 1000
+    const initial = newConfig.at
+    const content = emoji.native
+
+    drifters.current.push(new Drifter({
+      start, end, initial, content,
       parent: overlay.current,
-    })
-    drifters.current.push(drifter)
+      className: tyl.drifting ,
+    }))
 
     setPickerActive(false)
     setNewConfig(null)
 
     if(wasPlaying) video.current.play()
+
+    if(supabase) {
+      const { data: { id: feedbackId }, error: feedbackError } = (
+        await supabase.from('feedbacks').upsert(
+          [{ image: content }], { onConflict: 'image' },
+        )
+        .select()
+        .single()
+      )
+
+      if(feedbackError) throw feedbackError
+
+      supabase?.from('videos').insert({
+        startTime: start, endTime: end,
+        initialX: initial.x, initialY: initial.y,
+        video_id: videoUUID, feedback_id: feedbackId,
+      })
+    }
   }
 
   useEffect(() => {
@@ -143,7 +160,9 @@ export const Reactor = () => {
         }
         case 'ArrowLeft':
         case 'ArrowRight': {
-          let multiplier = evt.shiftKey ? 10 : 20
+          let multiplier = 10
+          if(evt.shiftKey) multiplier *= 2
+          if(evt.ctrlKey) multiplier /= 2
           if(evt.key === 'ArrowLeft') multiplier *= -1
           video.current.currentTime += video.current.duration / multiplier
           break
@@ -151,6 +170,8 @@ export const Reactor = () => {
         case 'ArrowUp':
         case 'ArrowDown': {
           let delta = 1
+          if(evt.shiftKey) delta *= 2
+          if(evt.ctrlKey) delta /= 2
           if(evt.key === 'ArrowDown') delta *= -1
           video.current.currentTime += delta
           break
@@ -168,7 +189,7 @@ export const Reactor = () => {
           let rate = Number(evt.key)
           if(rate === 0) rate = 0.5
           video.current.playbackRate = rate
-          toast(`Playback ⨯${evt.key}`)
+          toast(`Playback ⨯${rate}`)
           break
         }
         default: {
@@ -200,14 +221,16 @@ export const Reactor = () => {
   if(!videoConfig) return <h3>Loading…</h3>
 
   return (
-    <>
+    <article id={tyl.reactor}>
       <Toaster/>
-      <video controls muted autoPlay ref={video}> 
-        <source src={videoConfig.url}/>
-        <track default src="animated.vtt" kind="subtitles" label="Animated"/>
-      </video>
-      <div id="overlay" ref={overlay} {...{ onClick }}></div>
-      <KeyMap active={keyMapActive} onSelect={onKeySelect}/>
+      <section className={tyl.video}>
+        <video controls muted autoPlay ref={video}> 
+          <source src={videoConfig.url}/>
+          <track default src="animated.vtt" kind="subtitles" label="Animated"/>
+        </video>
+        <div id={tyl.overlay} ref={overlay} {...{ onClick }}></div>
+        <KeyMap active={keyMapActive} onSelect={onKeySelect}/>
+      </section>
       <EmojiPicker
         ref={picker}
         visible={pickerActive}
@@ -217,7 +240,7 @@ export const Reactor = () => {
           center,
         }}
       />
-    </>
+    </article>
   )
 }
 
