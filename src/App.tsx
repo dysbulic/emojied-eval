@@ -6,6 +6,8 @@ import Home from './components/Home';
 import Configuration from './components/Configuration';
 import Reactor from './components/Reactor';
 import SuspendedReactor from './components/SuspendedReactor';
+import FeedbackGroups from './components/FeedbackGroups';
+
 
 export const App = () => (
   <main>
@@ -16,6 +18,7 @@ export const App = () => (
         <Route path="/config" element={<Configuration/>}/>
         <Route path="/view" element={<Reactor/>}/>
         <Route path="/eval/:uuid" element={<SuspendedReactor/>}/>
+        <Route path="/reactions" element={<FeedbackGroups/>}/>
       </Routes>
     </Router>
   </main>

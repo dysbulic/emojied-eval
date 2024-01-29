@@ -56,7 +56,7 @@ serve(async (req) => {
 
     const { data: byAddy, error } = (
       await supabase.from('addresses').upsert(
-        [{ address: address }], { onConflict: 'address' },
+        [{ address }], { onConflict: 'address' },
       )
       .single()
       .select()

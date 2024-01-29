@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS feedbacks (
   updated_at timestamp with time zone DEFAULT now() NOT NULL,
   creator_id uuid DEFAULT auth.uid() NOT NULL,
   image text,
-  description text
+  description text,
 
   CONSTRAINT feedbacks_creator_id_fkey FOREIGN KEY (creator_id)
     REFERENCES auth.users(id) MATCH SIMPLE

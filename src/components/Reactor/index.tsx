@@ -117,23 +117,35 @@ export const Reactor = () => {
     if(wasPlaying) video.current.play()
 
     if(supabase) {
-      const { data: { id: feedbackId }, error: feedbackError } = (
-        await supabase.from('feedbacks').upsert(
-          [{ image: content }], { onConflict: 'image' },
-        )
+      let { data } = (
+        await supabase.from('feedbacks')
         .select()
+        .eq('image', content)
         .single()
       )
+      let feedbackId = data?.id
+      if(!feedbackId){
+        const { data, error: feedbackError } = (
+          await supabase.from('feedbacks').insert(
+            { image: content },
+          )
+          .select()
+          .single()
+        )
+        feedbackId = data.id
 
-      if(feedbackError) throw feedbackError
-
-      supabase?.from('videos').insert({
-        startTime: start, endTime: end,
-        initialX: initial.x, initialY: initial.y,
+        if(feedbackError) throw feedbackError
+      }
+      await supabase?.from('reactions').insert({
+        start_time: new Date(start).toISOString().split('T').at(-1),
+        end_time: new Date(end).toISOString().split('T').at(-1),
+        initial_x: Math.round(initial.x),
+        initial_y: Math.round(initial.y),
         video_id: videoUUID, feedback_id: feedbackId,
       })
     }
   }
+
 
   useEffect(() => {
     const listener = (evt: KeyboardEvent) => {
