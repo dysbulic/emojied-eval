@@ -14,12 +14,12 @@ export const config = createConfig(
         throw new Error('Missing $WALLETCONNECT_PROJECT_ID')
       })()
     ),
-    appName: 'Serial Mobbing',
+    appName: 'ClaimScore',
 
     // Optional
-    appDescription: 'Mob programming interface with collaborative evaluation.',
-    appUrl: "https://code.trwb.live",
-    appIcon: "https://code.trwb.live/logo.svg", // no bigger than 1024x1024px (max. 1MB)
+    appDescription: 'Scoring interface with collaborative evaluation by Dysbulic and Tenfinney.',
+    appUrl: "https://claimscore.freeweb3.com",
+    // appIcon: "https://code.trwb.live/logo.svg", // no bigger than 1024x1024px (max. 1MB)
   }),
 )
 

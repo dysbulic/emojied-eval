@@ -14,8 +14,8 @@ export const ConnectKit = createConfig(
     ),
     appName: 'Serial Mobbing',
     appDescription: 'Mob programming interface with collaborative evaluation.',
-    appUrl: "https://code.trwb.live",
-    appIcon: "https://code.trwb.live/logo.svg", // no bigger than 1024x1024px (max. 1MB)
+    appUrl: "https://codescore.freeweb3.com",
+    // appIcon: "https://code.trwb.live/logo.svg", // no bigger than 1024x1024px (max. 1MB)
   }),
 )
 

@@ -1,6 +1,6 @@
 export const Logo = () => {
   return (
-    <img src="/logo.svg" alt="logo"/>
+    <img src="/logo.png" alt="logo"/>
   )
 }
 
