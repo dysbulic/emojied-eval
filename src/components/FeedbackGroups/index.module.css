@@ -1,0 +1,16 @@
+.olTable {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+
+  & li {
+    display: contents;
+
+    & > * {
+      align-self: center;
+    }
+
+    & h2 {
+      margin: 0;
+    }
+  }
+}

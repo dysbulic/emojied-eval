@@ -55,3 +55,7 @@ em-emoji-picker {
   position: absolute;
   height: min(50vh, 55ch);
 }
+
+img.emoji {
+  max-height: 2rem
+}

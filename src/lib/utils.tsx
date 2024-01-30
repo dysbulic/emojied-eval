@@ -7,7 +7,7 @@ export const capitalize = (str: string) => (
 
 export const image = (str: string) => {
   if(/^(https?|ipfs):\/\//.test(str)) {
-    return <img src={str}/>
+    return <img src={str} className="emoji"/>
   }
   return <span className="emoji">{str}</span>
 }
