@@ -13,11 +13,12 @@ export type ReturnType = {
 export const useSupabase = () => {
   const [supabase, setSupabase] = useState<Maybe<SupabaseClient>>(null)
   const [error, setError] = useState<Maybe<string>>(null)
+  const jwt = localStorage.getItem(supaConfig.jwtStorageKey)
 
   useEffect(() => {
+    setError(null)
     const build = async () => {
       try {
-        const jwt = localStorage.getItem(supaConfig.jwtStorageKey)
         if(!jwt) {
           throw new Error('No JWT found in localStorage.')
         }
@@ -34,7 +35,7 @@ export const useSupabase = () => {
       }
     }
     build()
-  }, [])
+  }, [jwt])
 
   const ret: ReturnType = {
     supabase,

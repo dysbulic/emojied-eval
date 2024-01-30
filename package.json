@@ -17,12 +17,10 @@
     "sb:func:deploy": "supabase functions deploy"
   },
   "dependencies": {
-    "@chakra-ui/react": "^2.8.2",
     "@emoji-mart/data": "^1.1.2",
     "@emoji-mart/react": "^1.1.1",
     "@supabase/supabase-js": "^2.39.3",
     "connectkit": "^1.6.0",
-    "dayjs": "^1.11.10",
     "emoji-mart": "^5.5.2",
     "gh-pages": "^6.1.1",
     "jose": "^5.2.0",

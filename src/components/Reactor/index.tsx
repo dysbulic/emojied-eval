@@ -117,7 +117,7 @@ export const Reactor = () => {
     if(wasPlaying) video.current.play()
 
     if(supabase) {
-      let { data } = (
+      const { data } = (
         await supabase.from('feedbacks')
         .select()
         .eq('image', content)

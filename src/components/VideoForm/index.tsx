@@ -1,5 +1,6 @@
-import { FormEvent } from 'react'
-import { useSupabase } from '../lib/useSupabase'
+import { FormEvent, useRef } from 'react'
+import { useSupabase } from '../../lib/useSupabase'
+import tyl from './index.module.css'
 
 interface FormElements extends HTMLFormControlsCollection {
   url: HTMLInputElement,
@@ -7,7 +8,9 @@ interface FormElements extends HTMLFormControlsCollection {
   description: HTMLInputElement,
 }
 
-export const VideoForm = () => {
+export const VideoForm = (
+  { close: closeForm }: { close: () => void }
+) => {
   const { supabase } = useSupabase()
   const onSubmit = async (evt: FormEvent<HTMLFormElement>) => {
     if(!supabase) throw new Error('Supabase not defined.')
@@ -18,8 +21,19 @@ export const VideoForm = () => {
       description: elements.description.value,
     })
   }
+  const form = useRef<HTMLFormElement>(null)
+  const close = () => {
+    form.current?.reset()
+    closeForm()
+  }
+
   return (
-    <form {...{ onSubmit }} method="dialog">
+    <form
+      {...{ onSubmit }}
+      method="dialog"
+      className={tyl.form}
+      ref={form}
+    >
       <label>
         <h3>URL</h3>
         <input id="url" required/>
@@ -30,9 +44,12 @@ export const VideoForm = () => {
       </label>
       <label>
         <h3>Description</h3>
-        <input id="description"/>
+        <textarea id="description"/>
       </label>
-      <button>Create</button>
+      <div className={tyl.buttons}>
+        <button type="button" onClick={close}>Cancel</button>
+        <button>Create</button>
+      </div>
     </form>
   )
 }

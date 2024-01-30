@@ -1,6 +1,6 @@
 import { useRef } from 'react';
-import { useSupabase } from '../../lib/useSupabase'
 import { useQuery } from '@tanstack/react-query'
+import { useSupabase } from '../../lib/useSupabase'
 import Header from '../Header/index';
 import VideoForm from '../VideoForm';
 import tyl from './index.module.css'
@@ -20,10 +20,13 @@ export const Videos = () => {
       if(error) throw error 
       return data
     }
-  })
+  })  
 
   const addClick = async () => {
     addDialog.current?.showModal()
+  }
+  const close = () => {
+    addDialog.current?.close()
   }
 
 
@@ -35,7 +38,7 @@ export const Videos = () => {
   return (
     <article id={tyl.outer}>
       <dialog ref={addDialog}>
-        <VideoForm/>
+        <VideoForm {...{ close }}/>
       </dialog>
       <Header/>
       <header className={tyl.header}>

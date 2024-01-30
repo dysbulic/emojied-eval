@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS videos (
   creator_id uuid DEFAULT auth.uid() NOT NULL,
   slug text, 
   recorded_at timestamp with time zone,
-  title text,
+  title text NOT NULL,
   description text,
 
   CONSTRAINT videos_creator_id_fkey FOREIGN KEY (creator_id)
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS feedbacks (
   created_at timestamp with time zone DEFAULT now() NOT NULL,
   updated_at timestamp with time zone DEFAULT now() NOT NULL,
   creator_id uuid DEFAULT auth.uid() NOT NULL,
-  image text,
+  image text NOT NULL,
   description text,
 
   CONSTRAINT feedbacks_creator_id_fkey FOREIGN KEY (creator_id)
@@ -36,10 +36,10 @@ CREATE TABLE IF NOT EXISTS reactions (
   video_id uuid NOT NULL,
   reactor_id uuid DEFAULT auth.uid() NOT NULL,
   feedback_id uuid NOT NULL,
-  startTime time NOT NULL,
-  endTime time NOT NULL,
-  initialX int4 NOT NULL,
-  initialY int4 NOT NULL,
+  start_time time NOT NULL,
+  end_time time NOT NULL,
+  initial_x int4 NOT NULL,
+  initial_y int4 NOT NULL,
 
   CONSTRAINT reactions_video_id_fkey FOREIGN KEY (video_id)
     REFERENCES videos(id) MATCH SIMPLE
