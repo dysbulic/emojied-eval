@@ -1,11 +1,14 @@
 import { FormEvent, useRef } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useSupabase } from '../../lib/useSupabase'
 import tyl from './index.module.css'
+import { LiaEmber } from 'react-icons/lia'
 
 interface FormElements extends HTMLFormControlsCollection {
-  url: HTMLInputElement,
-  title: HTMLInputElement,
-  description: HTMLInputElement,
+  url: HTMLInputElement
+  title: HTMLInputElement
+  description: HTMLInputElement
+  group: HTMLSelectElement
 }
 
 export const VideoForm = (
@@ -19,6 +22,7 @@ export const VideoForm = (
       url: elements.url.value,
       title: elements.title.value,
       description: elements.description.value,
+      feedback_group_id: elements.group.value,
     })
   }
   const form = useRef<HTMLFormElement>(null)
@@ -26,6 +30,22 @@ export const VideoForm = (
     form.current?.reset()
     closeForm()
   }
+
+  const {
+    isLoading: loading, error: queryError, data: groups,
+  } = useQuery({
+    queryKey: ['VideoForm', { supabase }],
+    enabled: !!supabase,
+    queryFn: async () => {
+      const { data, error } = (
+        await supabase?.from('feedback_groups').select()
+      ) ?? {}
+      if(error) throw error 
+      return data
+    }
+  })
+  if(queryError) throw queryError
+  if(loading) return <h1>Loading…</h1>
 
   return (
     <form
@@ -45,6 +65,14 @@ export const VideoForm = (
       <label>
         <h3>Description</h3>
         <textarea id="description"/>
+      </label>
+      <label>
+        <h3>Feedback Group</h3>
+        <select id="group">
+          {groups?.map((group) => (
+            <option key={group.id} value={group.id}>{group.title}</option>
+          ))}
+        </select>
       </label>
       <div className={tyl.buttons}>
         <button type="button" onClick={close}>Cancel</button>

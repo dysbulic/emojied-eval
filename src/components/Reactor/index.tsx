@@ -4,10 +4,11 @@ import toast, { Toaster } from 'react-hot-toast'
 import { useQuery } from '@tanstack/react-query'
 import { useAnimationFrame } from '../../utils'
 import { Drifter } from '../../Drifter'
-import { EmojiPicker } from '../EmojiPicker'
+// import { EmojiPicker } from '../EmojiPicker'
 import { KeyMap } from '../KeyMap'
 import { useSupabase } from '../../lib/useSupabase'
 import tyl from './index.module.css'
+import ReactionForm, { Reaction } from '../ReactionForm'
 
 type DrifterConfig = {
   at?: { x: number, y: number },
@@ -86,8 +87,8 @@ export const Reactor = () => {
     if(pickerActive) setPickerActive(false)
   }
 
-  const onEmojiSelect = async (
-    emoji: { native: string }, evt: PointerEvent
+  const onReactionSelect = async (
+    reaction: Reaction, evt: PointerEvent
   ) => {
     evt.stopPropagation()
 
@@ -103,8 +104,9 @@ export const Reactor = () => {
     const start = newConfig.time
     const end = newConfig.time + 4 * 1000
     const initial = newConfig.at
-    const content = emoji.native
+    const content = reaction.image
 
+    console.debug({ reaction })
     drifters.current.push(new Drifter({
       start, end, initial, content,
       parent: overlay.current,
@@ -243,7 +245,19 @@ export const Reactor = () => {
         <div id={tyl.overlay} ref={overlay} {...{ onClick }}></div>
         <KeyMap active={keyMapActive} onSelect={onKeySelect}/>
       </section>
-      <EmojiPicker
+      <ReactionForm 
+        groupId={videoConfig?.feedback_group_id}
+        visible={pickerActive}
+        {...{
+          onReactionSelect,
+          onClose,
+        }}
+        style={{
+          top: center?.x,
+          left: center?.y,
+        }}
+      />
+      {/* <EmojiPicker
         ref={picker}
         visible={pickerActive}
         {...{
@@ -251,7 +265,7 @@ export const Reactor = () => {
           onClose,
           center,
         }}
-      />
+      /> */}
     </article>
   )
 }

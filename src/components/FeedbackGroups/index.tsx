@@ -52,7 +52,7 @@ export const FeedbackGroups = () => {
     )
     await supabase?.from('feedbacks_groups').insert(feedbacks)
 
-    evt.currentTarget.reset()
+    evt.target.reset()
   }
 
   if(loading) return <p>Loading…</p>
