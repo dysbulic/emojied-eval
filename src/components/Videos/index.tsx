@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query'
 import { useSupabase } from '../../lib/useSupabase'
-import Header from '../Header/index';
+import Header from '../Header';
 import VideoForm from '../VideoForm';
 import tyl from './index.module.css'
 
