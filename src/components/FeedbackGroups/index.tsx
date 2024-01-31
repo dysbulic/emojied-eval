@@ -13,7 +13,7 @@ interface FormElements extends HTMLFormControlsCollection {
 
 export const FeedbackGroups = () => {
   const { supabase } = useSupabase()
-  const { data: feedbacks, isLoading: loading } = useQuery({
+  const { data: feedbacks, isLoading: loading, refetch } = useQuery({
     queryKey: ['FeedbackGroups', { supabase }],
     queryFn: async () => {
       if(!supabase) throw new Error('No `supabase defined.')
@@ -51,6 +51,8 @@ export const FeedbackGroups = () => {
       ))
     )
     await supabase?.from('feedbacks_groups').insert(feedbacks)
+      
+    refetch()
 
     evt.target.reset()
   }
