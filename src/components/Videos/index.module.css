@@ -1,14 +1,36 @@
 .header {
   display: flex;
+  place-content: space-between;
+}
+
+#outer {
+  & li button {
+    aspect-ratio: 1;
+    font-size: 1.25rem;
+    border-radius: 0.5rem;
+    margin-inline: 0.5rem;
+    background-color: var(--button-bg);
+    color: var(--button-fg);
+    border: 2px solid color-mix(in srgb, var(--button-bg) 75%, #000 25%);
+    font-weight: bold;
+
+    &:hover {
+      filter: brightness(1.5);
+    }
+  }
 }
 
 .olTable {
   & ol {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
 
     & li {
       display: contents;
+
+      &:hover > * {
+        background-color: var(--hover-bg);
+      }
 
       & > * {
         align-self: center;

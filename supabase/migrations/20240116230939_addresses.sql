@@ -1,4 +1,4 @@
-CREATE TABLE addresses (
+CREATE TABLE IF NOT EXISTS addresses (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
   user_id uuid UNIQUE,
   address text UNIQUE NOT NULL,

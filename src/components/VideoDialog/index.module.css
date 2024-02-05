@@ -42,4 +42,9 @@
       margin-inline: 0.5rem;
     }
   }
+
+  & .noneOption {
+    font-style: italic;
+    opacity: 0.75;
+  }
 }

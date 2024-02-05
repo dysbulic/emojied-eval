@@ -10,6 +10,10 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --button-bg: #FF490F;
+  --button-fg: #000;
+  --hover-bg: #1DA914;
 }
 
 a {
