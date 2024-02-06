@@ -3,8 +3,9 @@ import {
 } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useSupabase } from '../../lib/useSupabase'
-import tyl from './index.module.css'
 import { Video } from '../Videos'
+import tyl from './index.module.css'
+import formtyl from '../../styles/form.module.css'
 
 interface FormElements extends HTMLFormControlsCollection {
   url: HTMLInputElement
@@ -50,7 +51,9 @@ export const VideoDialog = forwardRef(
         feedback_group_id: elements.group.value || null,
       }
       if(video) {
-        await supabase.from('videos').update(values).eq('id', video.id)
+        await supabase.from('videos')
+        .update(values)
+        .eq('id', video.id)
       } else {
         await supabase.from('videos').insert(values)
       }
@@ -80,7 +83,7 @@ export const VideoDialog = forwardRef(
         <form
           {...{ onSubmit }}
           method="dialog"
-          className={tyl.form}
+          className={formtyl.form}
           ref={form}
         >
           <label>
@@ -89,11 +92,18 @@ export const VideoDialog = forwardRef(
           </label>
           <label>
             <h3>Title</h3>
-            <input id="title" defaultValue={video?.title} required/>
+            <input
+              id="title"
+              defaultValue={video?.title}
+              required
+            />
           </label>
           <label>
             <h3>Description</h3>
-            <textarea id="description" defaultValue={video?.description ?? ''}>
+            <textarea
+              id="description"
+              defaultValue={video?.description ?? ''}
+            >
             </textarea>
           </label>
           <label>
@@ -102,14 +112,22 @@ export const VideoDialog = forwardRef(
               <select id="group" defaultValue={video?.feedback_group_id}>
                 <option value="" className={tyl.noneOption}>None</option>
                 {groups?.map((group) => (
-                  <option key={group.id} value={group.id}>{group.title}</option>
+                  <option
+                    key={group.id}
+                    value={group.id}
+                    selected={group.id === video?.feedback_group_id}
+                  >{group.title}</option>
                 ))}
               </select>
             )}
           </label>
-          <div className={tyl.buttons}>
-            <button type="button" onClick={close}>Cancel</button>
-            <button>{video ? 'Update' : 'Create'}</button>
+          <div className={formtyl.buttons}>
+            <button
+              type="button"
+              onClick={close}
+              className={formtyl.cancel}
+            >Cancel</button>
+            <button className={formtyl.submit}>{video ? 'Update' : 'Create'}</button>
           </div>
         </form>
       </dialog>

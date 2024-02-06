@@ -1,8 +1,9 @@
+import { FormEvent, useCallback, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import useSupabase from '../../lib/useSupabase'
 import { image } from '../../lib/utils'
-import FeedbackForm from '../FeedbackForm'
-import { FormEvent, useRef } from 'react'
+import FeedbackDialog from '../FeedbackDialog'
+import Header from '../Header'
 import tyl from './index.module.css'
 
 interface FormElements extends HTMLFormControlsCollection {
@@ -13,13 +14,12 @@ interface FormElements extends HTMLFormControlsCollection {
 
 export const FeedbackGroups = () => {
   const { supabase } = useSupabase()
-  const { data: feedbacks, isLoading: loading } = useQuery({
+  const { data: feedbacks, isLoading: loading, refetch } = useQuery({
     queryKey: ['FeedbackGroups', { supabase }],
     queryFn: async () => {
       if(!supabase) throw new Error('No `supabase defined.')
       const { data } = (
-        await supabase.from('feedbacks')
-        .select()
+        await supabase.from('feedbacks').select()
       )
       return data
     },
@@ -30,11 +30,21 @@ export const FeedbackGroups = () => {
   const addClick = async () => {
     addDialog.current?.showModal()
   }
+  const onClose = useCallback(() => {
+    refetch()
+  }, [refetch])
 
   const onSubmit = async (evt: FormEvent<HTMLFormElement>) => {
     if(!supabase) throw new Error('Supabase not defined.')
     evt.preventDefault()
     const elements = evt.currentTarget.elements as FormElements
+    const checked = (
+      Object.values(elements.grouped)
+      .filter(({ checked }) => checked)
+    )
+    if(checked.length === 0) {
+      throw new Error('No reactions selected.')
+    }
     const { data: group } = (
       await supabase.from('feedback_groups').insert({
         title: elements.title.value,
@@ -44,40 +54,44 @@ export const FeedbackGroups = () => {
       .single()
     ) ?? {}
     const feedbacks = (
-      Object.values(elements.grouped)
-      .filter((input) => input.checked)
-      .map((input) => (
-        {feedback_id: input.value, group_id: group.id}
+      checked
+      .map(({ value: feedback_id }) => (
+        { feedback_id, group_id: group.id }
       ))
     )
     await supabase?.from('feedbacks_groups').insert(feedbacks)
 
-    evt.target.reset()
+    evt.currentTarget.reset()
   }
-
-  if(loading) return <p>Loading…</p>
 
   return (
     <section>
-      <h1>Reactions</h1>
-      <button onClick={addClick}>➕</button>
-      <dialog ref={addDialog}>
-        <FeedbackForm/>
-      </dialog>
-      <form {...{ onSubmit}}>
-        <input id="title" required/>
-        <input id="description"/>
-        <ul className={tyl.olTable}>
-          {feedbacks?.map((feedback) => (
-            <li key={feedback.id}>
-              <input type="checkbox" id="grouped" value={feedback.id}/>
-              {image(feedback.image)}
-              <h2>{feedback.title}</h2>
-              <div>{feedback.description}</div>
-            </li>
-          ))}
-        </ul>
-      <button>Create Group</button>
+      <Header>
+        <h1>Reactions</h1>
+        <button onClick={addClick} className="square">➕</button>
+      </Header>
+      <FeedbackDialog
+        ref={addDialog}
+        {...{ onClose }}
+      />
+      <form {...{ onSubmit }}>
+        {loading ? <p>Loading…</p> : (
+          <ul className={[tyl.olTable, tyl['col-3']].join(' ')}>
+            {feedbacks?.map((feedback) => (
+              <li key={feedback.id}>
+                <input type="checkbox" id="grouped" value={feedback.id}/>
+                {image(feedback.image)}
+                <h2>{feedback.name}</h2>
+                <div>{feedback.description}</div>
+              </li>
+            ))}
+          </ul>
+        )}
+        <section className={tyl.newGroup}>
+          <input id="title" required placeholder="Title"/>
+          <input id="description" className={tyl.description} placeholder="Description"/>
+          <button>Create Group</button>
+        </section>
       </form>
     </section>
   )

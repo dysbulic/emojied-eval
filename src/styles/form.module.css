@@ -1,0 +1,61 @@
+.form {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem 0;
+
+  & h3 {
+    text-align: right;
+    margin-inline-end: 0.5rem;
+    margin-block: 0;
+
+    &:after {
+      content: ':';
+    }
+  }
+
+  & label:has(textarea) {
+    & h3, & textarea {
+      grid-column: 1 / 3;
+    }
+
+    & h3 {
+      text-align: left;
+    }
+
+    & textarea {
+      margin-inline-start: 1rem;
+      height: 5em;
+    }
+  }
+
+  & label {
+    display: contents;
+    margin-block: 0.5rem;
+  }
+
+  & .buttons {
+    display: flex;
+    grid-column: 1 / 3;
+
+    & button {
+      flex: 1;
+      margin-inline: 0.5rem;
+      padding-block: 0.5rem;
+
+      &.cancel {
+        --button-bg: #EB0900;
+        --button-fg: #000;
+      }
+
+      &.submit {
+        --button-bg: #0F4812;
+        --button-fg: #FFF;
+      }
+    }
+  }
+
+  & .noneOption {
+    font-style: italic;
+    opacity: 0.75;
+  }
+}

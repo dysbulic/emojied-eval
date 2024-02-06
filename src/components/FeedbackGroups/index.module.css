@@ -14,3 +14,26 @@
     }
   }
 }
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  & img {
+    height: 3.5rem;
+    aspect-ratio: 1;
+  }
+}
+
+.col-3 {
+  column-count: 3;
+}
+
+.newGroup {
+  display: flex;
+
+  & .description {
+    flex-grow: 1;
+  }
+}

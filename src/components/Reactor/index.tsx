@@ -1,16 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { MouseEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import toast, { Toaster } from 'react-hot-toast'
 import { useQuery } from '@tanstack/react-query'
-import { useAnimationFrame } from '../../utils'
+import { useAnimationFrame } from '../../lib/utils'
 import { Drifter } from '../../Drifter'
-// import { EmojiPicker } from '../EmojiPicker'
 import { KeyMap } from '../KeyMap'
 import { useSupabase } from '../../lib/useSupabase'
+import ReactionDialog, { Reaction } from '../ReactionDialog'
 import tyl from './index.module.css'
-import ReactionForm, { Reaction } from '../ReactionForm'
 
-type DrifterConfig = {
+export type DrifterConfig = {
   at?: { x: number, y: number },
   time?: number,
 }
@@ -21,7 +20,6 @@ export const Reactor = () => {
   const overlay = useRef<HTMLDivElement>(null)
   const video = useRef<HTMLVideoElement>(null)
   const drifters = useRef<Array<Drifter>>([])
-  const picker = useRef<HTMLElement>(null)
   const [newConfig, setNewConfig] = (
     useState<DrifterConfig | null>(null)
   )
@@ -67,7 +65,7 @@ export const Reactor = () => {
   useAnimationFrame(updatePositions)
 
   const onClick = useCallback(
-    (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    (evt: MouseEvent<HTMLDivElement>) => {
       if(!video.current) throw new Error('<video> not found.')
       const click = { x: evt.clientX, y: evt.clientY }
       setCenter(click)
@@ -88,7 +86,7 @@ export const Reactor = () => {
   }
 
   const onReactionSelect = async (
-    reaction: Reaction, evt: PointerEvent
+    reaction: Reaction, evt: MouseEvent<HTMLButtonElement>
   ) => {
     evt.stopPropagation()
 
@@ -106,7 +104,8 @@ export const Reactor = () => {
     const initial = newConfig.at
     const content = reaction.image
 
-    console.debug({ reaction })
+    if(!content) throw new Error('Reaction has no emoji.')
+
     drifters.current.push(new Drifter({
       start, end, initial, content,
       parent: overlay.current,
@@ -245,9 +244,8 @@ export const Reactor = () => {
         <div id={tyl.overlay} ref={overlay} {...{ onClick }}></div>
         <KeyMap active={keyMapActive} onSelect={onKeySelect}/>
       </section>
-      <ReactionForm 
+      <ReactionDialog 
         groupId={videoConfig?.feedback_group_id}
-        visible={pickerActive}
         {...{
           onReactionSelect,
           onClose,
@@ -257,15 +255,6 @@ export const Reactor = () => {
           left: center?.y,
         }}
       />
-      {/* <EmojiPicker
-        ref={picker}
-        visible={pickerActive}
-        {...{
-          onEmojiSelect,
-          onClose,
-          center,
-        }}
-      /> */}
     </article>
   )
 }

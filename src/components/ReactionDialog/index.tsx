@@ -1,3 +1,4 @@
+import { HTMLAttributes, MouseEvent } from "react"
 import useSupabase from "../../lib/useSupabase"
 import { useQuery } from '@tanstack/react-query'
 import { image } from '../../lib/utils'
@@ -7,20 +8,21 @@ export type Reaction = {
   image?: string
 }
 
-export const ReactionForm = ({
+export const ReactionDialog = ({
   groupId,
-  visible = true,
   onReactionSelect,
   onClose,
   ...props
 }: {
   groupId: string
-  visible: boolean
-  onReactionSelect: (reaction: Reaction, evt: PointerEvent) => void
-  onClose: () => void
-}) => {
-
+  onReactionSelect: (
+    reaction: Reaction, evt: MouseEvent<HTMLButtonElement>
+  ) => void
+  onClose?: () => void
+} & HTMLAttributes<HTMLDialogElement>) => {
   const { supabase, error: supaError } = useSupabase()
+  if(supaError) throw supaError
+
   const {
     /* isLoading: loading, */ error: feedbacksError, data: feedbacks,
   } = useQuery({
@@ -41,15 +43,22 @@ export const ReactionForm = ({
     enabled: !!supabase,
     // suspense: true,
   })
-  const onClick=(evt: PointerEvent) => {
-    onReactionSelect?.({ image: evt.target?.dataset.image }, evt)
+  if(feedbacksError) throw feedbacksError
+
+  const onClick=(evt: MouseEvent<HTMLButtonElement>) => {
+    const button = evt.currentTarget as HTMLButtonElement
+    onReactionSelect?.({ image: button.dataset.image }, evt)
+    onClose?.()
   }
 
-console.debug({ feedbacks })
   return (
     <dialog className={tyl.form} {...props}>
       {feedbacks?.map((fb) => (
-        <button key={fb.id} data-image={fb.feedbacks.image} {...{ onClick }}>
+        <button
+          key={fb.id}
+          data-image={fb.feedbacks.image}
+          {...{ onClick }}
+        >
           {image(fb.feedbacks.image)}
         </button>
       ))}
@@ -57,5 +66,4 @@ console.debug({ feedbacks })
   )
 } 
 
-export default ReactionForm
-
+export default ReactionDialog

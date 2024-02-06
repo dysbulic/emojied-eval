@@ -1,8 +1,9 @@
 import { useSIWE } from "connectkit"
 import useSupabase from "../../lib/useSupabase"
 import LoginButton from "../LoginButton"
-import Videos from "../Videos"
+import { Link } from "react-router-dom"
 import tyl from './index.module.css'
+import Header from "../Header"
 
 export const Home = () => {
   const { supabase, error: supaError } = useSupabase()
@@ -21,12 +22,24 @@ export const Home = () => {
 
   return (
     content ? (
-      <section id="home" className={tyl.main}>
+      <section id={tyl.home} className={tyl.main}>
         <object data="/banner.svg"/>
         {content}
       </section>
     ) : (
-      <Videos/>
+      <section>
+        <Header/>
+        <main>
+          <nav>
+            <ul id={tyl.mainnav}>
+              <li><Link to="/videos">Videos</Link></li>
+              <li><Link to="/reactions">Reactions</Link></li>
+              <li><Link to="/config">Configure</Link></li>
+              <li><Link to="/selector">Reaction Selector</Link></li>
+            </ul>
+          </nav>
+        </main>
+      </section>
     )
   )
 }

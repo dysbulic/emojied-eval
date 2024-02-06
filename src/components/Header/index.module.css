@@ -1,8 +1,11 @@
 .header {
-  display: inline-flex;
+  display: flex;
   max-height: 15vh;
+  justify-content: space-between;
+  align-items: center;
 
   & img {
-    height: auto;
+    height: 15vh;
+    aspect-ratio: 1;
   }
 }

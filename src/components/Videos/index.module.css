@@ -11,7 +11,7 @@
     margin-inline: 0.5rem;
     background-color: var(--button-bg);
     color: var(--button-fg);
-    border: 2px solid color-mix(in srgb, var(--button-bg) 75%, #000 25%);
+    border: 2px solid var(--button-border);
     font-weight: bold;
 
     &:hover {

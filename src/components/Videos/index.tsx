@@ -56,34 +56,33 @@ export const Videos = () => {
   if(supaError) throw supaError
   if(queryError) throw queryError
 
-  if(loading) return <h1>Loading…</h1>
-
   return (
     <article id={tyl.outer}>
+      <Header>
+        <h1>Videos</h1>
+        <button onClick={addClick} className="square">➕</button>
+      </Header>
       <VideoDialog
         {...{ video, onClose }}
         ref={dialogRef}
       />
-      <Header/>
-      <header className={tyl.header}>
-        <h1>Videos</h1>
-        <button onClick={addClick}>➕</button>
-      </header>
       <main className={tyl.olTable}>
-        <ol>
-          {videos?.map((vid) => (
-            <li key={vid.id}>
-              <h2><a href={`eval/${vid.id}`}>
-                {vid.title}
-              </a></h2>
-              <div>{vid.description}</div>
-              <nav>
-                <button onClick={() => edit(vid.id)}>🖉</button>
-                <button onClick={() => remove(vid.id)}>➖</button>
-              </nav>
-            </li>
-          ))}
-        </ol>
+        {loading ? <p>Loading…</p> : (
+          <ol>
+            {videos?.map((vid) => (
+              <li key={vid.id}>
+                <h2><a href={`eval/${vid.id}`}>
+                  {vid.title}
+                </a></h2>
+                <div>{vid.description}</div>
+                <nav>
+                  <button onClick={() => edit(vid.id)}>🖉</button>
+                  <button onClick={() => remove(vid.id)}>➖</button>
+                </nav>
+              </li>
+            ))}
+          </ol>
+        )}
       </main>
     </article>
   )
