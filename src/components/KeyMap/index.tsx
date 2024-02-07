@@ -1,5 +1,6 @@
 import { useEffect } from "react"
-import type { Point } from "./Reactor"
+import type { Point } from "../Reactor"
+import tyl from './index.module.css'
 
 export const defaultKeys = [
   '`1234567890-='.split(''),
@@ -46,7 +47,7 @@ export const KeyMap = (
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      id="onscreen-keymap"
+      id={tyl.keymap}
       preserveAspectRatio="none"
       viewBox={`0 0 ${bbox.w} ${bbox.h}`}
     >

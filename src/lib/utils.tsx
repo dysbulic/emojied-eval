@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Attributes, HTMLAttributes } from 'react'
 
 export const capitalize = (str: string) => (
   str.replace(
@@ -7,11 +7,14 @@ export const capitalize = (str: string) => (
   )
 )
 
-export const image = (str: string) => {
+export const image = (
+  str: string,
+  props?: Attributes & HTMLAttributes<Element>,
+) => {
   if(/^(https?|ipfs):\/\//.test(str)) {
-    return <img src={str} className="emoji"/>
+    return <img src={str} className="emoji" {...props}/>
   }
-  return <span className="emoji">{str}</span>
+  return <span className="emoji" {...props}>{str}</span>
 }
 
 // Replaced by Rxjs, but I'd still like to know how to type it.

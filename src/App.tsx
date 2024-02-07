@@ -6,7 +6,7 @@ import Reactor from './components/Reactor'
 import SuspendedReactor from './components/SuspendedReactor'
 import FeedbackGroups from './components/FeedbackGroups'
 import Videos from './components/Videos'
-import ReactionSelector from './components/ReactionSelector'
+import Reactions from './components/Reactions'
 import './App.css'
 
 export const App = () => (
@@ -17,7 +17,7 @@ export const App = () => (
         <Route path="/" element={<Home/>}/>
         <Route path="/config" element={<Configuration/>}/>
         <Route path="/view" element={<Reactor/>}/>
-        <Route path="/selector" element={<ReactionSelector/>}/>
+        <Route path="/selector" element={<Reactions/>}/>
         <Route path="/videos" element={<Videos/>}/>
         <Route path="/eval/:uuid" element={<SuspendedReactor/>}/>
         <Route path="/reactions" element={<FeedbackGroups/>}/>

@@ -1,0 +1,8 @@
+.output {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+#reactions {
+  min-height: 100dvh;
+}
