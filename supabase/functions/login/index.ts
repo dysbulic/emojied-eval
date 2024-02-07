@@ -108,9 +108,13 @@ serve(async (req) => {
       )
     }
 
-    const encoder = new TextEncoder()
-    const rawJWTSecret = encoder.encode(jwtSecret)
-    // const rawJWTSecret = b64Decode(jwtSecret)
+    const rawJWTSecret = (
+      Deno.env.get('JWT_SECRET_B64') ? (
+        b64Decode(jwtSecret)
+      ) : (
+        new TextEncoder().encode(jwtSecret)
+      )
+    )
 
     const key = await crypto.subtle.importKey(
       'raw', // format of the key's data
