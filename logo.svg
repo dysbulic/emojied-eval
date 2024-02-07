@@ -16,6 +16,10 @@
       :root {
         --mix-percent: 35%;
         --mix-color: white;
+        --anim-dur: 15s;
+      }
+      svg:hover {
+        --anim-dur: 3s;
       }
       #background {
         fill: #d2d0ff;
@@ -24,7 +28,7 @@
         paint-order: stroke fill markers;
         --mix-percent: 50%;
         --mix-color: black;
-        animation: rainbow 1s infinite;
+        animation: rainbow var(--anim-dur) infinite;
         animation-delay: 0.25s;
         animation-direction: alternate;
       }
@@ -37,7 +41,7 @@
       #hat-fill {
         fill: #ec8948;
         --mix-percent: 100%;
-        animation: rainbow 1s infinite;
+        animation: rainbow calc(var(--anim-dur) * .7) infinite;
       }
       #hat-brim-shadow {
         mix-blend-mode: hard-light;
@@ -47,7 +51,7 @@
       #face {
         fill: #fcd2af;
         --mix-percent: 40%;
-        animation: rainbow 1s infinite;
+        animation: rainbow calc(var(--anim-dur) * 1.1) infinite;
       }
       #jacket-lapels-shadow {
         mix-blend-mode: hard-light;
@@ -58,7 +62,7 @@
         fill: #ec8948;
         --mix-color: black;
         --mix-percent: 25%;
-        animation: rainbow 1s infinite;
+        animation: rainbow calc(var(--anim-dur) * .85) infinite;
       }
       #shirt-lapels-inner {
         fill: #090a0c;
@@ -73,7 +77,7 @@
         fill: #d1efda;
         --mix-color: green;
         --mix-percent: 75%;
-        animation: rainbow 1s infinite;
+        animation: rainbow calc(var(--anim-dur) * 1.2) infinite;
       }
       #face-shadow {
         mix-blend-mode: hard-light;
