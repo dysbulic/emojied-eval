@@ -1,150 +1,150 @@
-import { createContext, useContext, useEffect, useRef, useState } from "react";
-import supabase from "../supabaseClient";
+import { createContext, useContext, useEffect, useRef, useState } from "react"
+import supabase from "../supabaseClient"
 
-const AppContext = createContext({});
+const AppContext = createContext({})
 
 const AppContextProvider = ({ children }) => {
-  let myChannel = null;
-  const [username, setUsername] = useState("");
-  const [session, setSession] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [error, setError] = useState("");
-  const [loadingInitial, setLoadingInitial] = useState(true);
-  const [routeHash, setRouteHash] = useState("");
-  const [isOnBottom, setIsOnBottom] = useState(false);
+  let myChannel = null
+  const [username, setUsername] = useState("")
+  const [session, setSession] = useState(null)
+  const [messages, setMessages] = useState([])
+  const [error, setError] = useState("")
+  const [loadingInitial, setLoadingInitial] = useState(true)
+  const [routeHash, setRouteHash] = useState("")
+  const [isOnBottom, setIsOnBottom] = useState(false)
   const [newIncomingMessageTrigger, setNewIncomingMessageTrigger] =
-    useState(null);
-  const [unviewedMessageCount, setUnviewedMessageCount] = useState(0);
-  const [countryCode, setCountryCode] = useState("");
-  const [isInitialLoad, setIsInitialLoad] = useState(false);
+    useState(null)
+  const [unviewedMessageCount, setUnviewedMessageCount] = useState(0)
+  const [countryCode, setCountryCode] = useState("")
+  const [isInitialLoad, setIsInitialLoad] = useState(false)
 
   useEffect(() => {
     // Effect to scroll to bottom on initial message load
     if (isInitialLoad) {
-      setIsInitialLoad(false);
-      scrollToBottom();
+      setIsInitialLoad(false)
+      scrollToBottom()
     }
-  }, [messages]);
+  }, [messages])
 
   const getLocation = async () => {
     try {
-      const res = await fetch("https://api.db-ip.com/v2/free/self");
-      const { countryCode, error } = await res.json();
-      if (error) throw new Error(error);
+      const res = await fetch("https://api.db-ip.com/v2/free/self")
+      const { countryCode, error } = await res.json()
+      if (error) throw new Error(error)
 
-      setCountryCode(countryCode);
-      localStorage.setItem("countryCode", countryCode);
+      setCountryCode(countryCode)
+      localStorage.setItem("countryCode", countryCode)
     } catch (error) {
       console.error(
         `error getting location from api.db-ip.com:`,
         error.message
-      );
+      )
     }
-  };
+  }
 
   const randomUsername = () => {
-    return `@user${Date.now().toString().slice(-4)}`;
-  };
+    return `@user${Date.now().toString().slice(-4)}`
+  }
   const initializeUser = (session) => {
-    setSession(session);
+    setSession(session)
     // const {
     //   data: { session },
-    // } = await supabase.auth.getSession();
+    // } = await supabase.auth.getSession()
 
-    let username;
+    let username
     if (session) {
-      username = session.user.user_metadata.user_name;
+      username = session.user.user_metadata.user_name
     } else {
-      username = localStorage.getItem("username") || randomUsername();
+      username = localStorage.getItem("username") || randomUsername()
     }
-    setUsername(username);
-    localStorage.setItem("username", username);
-  };
+    setUsername(username)
+    localStorage.setItem("username", username)
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      initializeUser(session);
-    });
+      initializeUser(session)
+    })
 
-    getMessagesAndSubscribe();
+    getMessagesAndSubscribe()
 
-    const storedCountryCode = localStorage.getItem("countryCode");
+    const storedCountryCode = localStorage.getItem("countryCode")
     if (storedCountryCode && storedCountryCode !== "undefined")
-      setCountryCode(storedCountryCode);
-    else getLocation();
+      setCountryCode(storedCountryCode)
+    else getLocation()
 
     const {
       data: { subscription: authSubscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("onAuthStateChange", { _event, session });
-      initializeUser(session);
-    });
+      console.log("onAuthStateChange", { _event, session })
+      initializeUser(session)
+    })
 
-    // const { hash, pathname } = window.location;
+    // const { hash, pathname } = window.location
     // if (hash && pathname === "/") {
-    //   console.log("hash", hash);
-    //   setRouteHash(hash);
+    //   console.log("hash", hash)
+    //   setRouteHash(hash)
     // }
 
     return () => {
       // Remove supabase channel subscription by useEffect unmount
       if (myChannel) {
-        supabase.removeChannel(myChannel);
+        supabase.removeChannel(myChannel)
       }
 
-      authSubscription.unsubscribe();
-    };
-  }, []);
+      authSubscription.unsubscribe()
+    }
+  }, [])
 
   useEffect(() => {
-    if (!newIncomingMessageTrigger) return;
+    if (!newIncomingMessageTrigger) return
 
     if (newIncomingMessageTrigger.username === username) {
-      scrollToBottom();
+      scrollToBottom()
     } else {
-      setUnviewedMessageCount((prevCount) => prevCount + 1);
+      setUnviewedMessageCount((prevCount) => prevCount + 1)
     }
-  }, [newIncomingMessageTrigger]);
+  }, [newIncomingMessageTrigger])
 
   const handleNewMessage = (payload) => {
-    setMessages((prevMessages) => [payload.new, ...prevMessages]);
+    setMessages((prevMessages) => [payload.new, ...prevMessages])
     //* needed to trigger react state because I need access to the username state
-    setNewIncomingMessageTrigger(payload.new);
-  };
+    setNewIncomingMessageTrigger(payload.new)
+  }
 
   const getInitialMessages = async () => {
-    if (messages.length) return;
+    if (messages.length) return
 
     const { data, error } = await supabase
       .from("messages")
       .select()
       .range(0, 49)
-      .order("id", { ascending: false });
-    // console.log(`data`, data);
+      .order("id", { ascending: false })
+    // console.log(`data`, data)
 
-    setLoadingInitial(false);
+    setLoadingInitial(false)
     if (error) {
-      setError(error.message);
-      return;
+      setError(error.message)
+      return
     }
 
-    setIsInitialLoad(true);
-    setMessages(data);
-    // scrollToBottom(); // not sure why this stopped working, meanwhile using useEffect that's listening to messages and isInitialLoad state.
-  };
+    setIsInitialLoad(true)
+    setMessages(data)
+    // scrollToBottom() // not sure why this stopped working, meanwhile using useEffect that's listening to messages and isInitialLoad state.
+  }
 
   const getMessagesAndSubscribe = async () => {
-    setError("");
+    setError("")
 
-    await getInitialMessages();
+    await getInitialMessages()
 
     if (!myChannel) {
       // mySubscription = supabase
       // .from("messages")
       // .on("*", (payload) => {
-      //   handleNewMessage(payload);
+      //   handleNewMessage(payload)
       // })
-      // .subscribe();
+      // .subscribe()
 
       console.debug('Subscribing')
       myChannel = supabase
@@ -154,44 +154,44 @@ const AppContextProvider = ({ children }) => {
           { event: "*", schema: "public", table: "messages" },
           (payload) => {
             console.debug({ payload })
-            handleNewMessage(payload);
+            handleNewMessage(payload)
           }
         )
-        .subscribe();
+        .subscribe()
     }
-  };
+  }
 
-  const scrollRef = useRef();
+  const scrollRef = useRef()
   const onScroll = async ({ target }) => {
     if (target.scrollHeight - target.scrollTop <= target.clientHeight + 1) {
-      setUnviewedMessageCount(0);
-      setIsOnBottom(true);
+      setUnviewedMessageCount(0)
+      setIsOnBottom(true)
     } else {
-      setIsOnBottom(false);
+      setIsOnBottom(false)
     }
 
     //* Load more messages when reaching top
     if (target.scrollTop === 0) {
-      // console.log("messages.length :>> ", messages.length);
+      // console.log("messages.length :>> ", messages.length)
       const { data, error } = await supabase
         .from("messages")
         .select()
         .range(messages.length, messages.length + 49)
-        .order("id", { ascending: false });
+        .order("id", { ascending: false })
       if (error) {
-        setError(error.message);
-        return;
+        setError(error.message)
+        return
       }
-      target.scrollTop = 1;
-      setMessages((prevMessages) => [...prevMessages, ...data]);
+      target.scrollTop = 1
+      setMessages((prevMessages) => [...prevMessages, ...data])
     }
-  };
+  }
 
   const scrollToBottom = () => {
-    if (!scrollRef.current) return;
+    if (!scrollRef.current) return
 
-    scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  };
+    scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+  }
 
   return (
     <AppContext.Provider
@@ -215,9 +215,9 @@ const AppContextProvider = ({ children }) => {
     >
       {children}
     </AppContext.Provider>
-  );
-};
+  )
+}
 
-const useAppContext = () => useContext(AppContext);
+const useAppContext = () => useContext(AppContext)
 
-export { AppContext as default, AppContextProvider, useAppContext };
+export { AppContext as default, AppContextProvider, useAppContext }

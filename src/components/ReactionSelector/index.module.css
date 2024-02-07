@@ -1,13 +1,26 @@
 .fbGroup {
+  display: block;
 
   & main {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
+    --button-size: calc(var(--icon-size) + 2rem);
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--button-size), 1fr));
+    gap: 0.5rem;
+    position-items: center;
 
     & img {
       height: var(--icon-size);
     }
+  }
+}
+
+.dialog {
+  min-width: min(90ex, 85dvw);
+  max-width: 85dvw;
+
+  & form {
+    max-width: 85dvw;
   }
 }

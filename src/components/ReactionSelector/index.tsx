@@ -1,7 +1,7 @@
 import {
   of, groupBy, lastValueFrom, map, mergeMap, reduce, toArray,
 } from 'rxjs'
-import { FormEvent } from 'react'
+import { FormEvent, useCallback, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import useSupabase from '../../lib/useSupabase'
 import { image } from '../../lib/utils';
@@ -83,6 +83,89 @@ export const ReactionSelector = (
   })
   if(error) throw error
 
+  const findFocused = useCallback(() => {
+    const focused = document.activeElement
+    if(!focused) {
+      throw new Error('No focused element defined.')
+    }
+    if(focused instanceof HTMLButtonElement) {
+      for(const [gIdx, group] of groups?.entries() ?? []) {
+        for(const [fbIdx, fb] of group.feedbacks.entries()) {
+          if(focused.id === `${group.id}-${fb?.id}`) {
+            return { gIdx, fbIdx, focused }
+          }
+        }
+      }
+    }
+    throw new Error('No focused element found.')
+  }, [groups])
+
+  const focus = useCallback(
+    (idx: { group: number, feedback: number }) => {
+      if(!groups) throw new Error('No groups defined.')
+
+      const id = {
+        group: groups[idx.group].id,
+        feedback: groups[idx.group].feedbacks[idx.feedback]?.id,
+      }
+      if(id) {
+        const next = document.getElementById(`${id.group}-${id.feedback}`)
+        next?.focus()
+      }
+    },
+    [groups],
+  )
+
+
+  const listen = useCallback((evt: KeyboardEvent) => {
+    if(!groups) throw new Error('No groups defined.')
+
+    switch(evt.key) {
+      case 'ArrowLeft': {
+        const { gIdx = 0, fbIdx = 0 } = findFocused() ?? {}
+        const idx = { group: gIdx, feedback: fbIdx }
+        if(fbIdx === 0 && gIdx > 0) {
+          idx.group--
+          idx.feedback = groups[idx.group].feedbacks.length - 1
+        } else if(fbIdx > 0) {
+          idx.feedback--
+        }
+        focus(idx)
+        break
+      }
+      case 'ArrowRight': {
+        const { gIdx, fbIdx } = findFocused() ?? {}
+        const idx = { group: gIdx, feedback: fbIdx }
+        const max = {
+          group: groups.length - 1,
+          feedback: groups[gIdx].feedbacks.length - 1,
+        }
+        if(fbIdx >= max.feedback && gIdx < max.group) {
+          ++idx.group
+          idx.feedback = 0
+        } else if(fbIdx < max.feedback) {
+          ++idx.feedback
+        }
+        focus(idx)
+        break
+      }
+      case 'ArrowUp': {
+        break
+      }
+      case 'ArrowDown ': {
+        break
+      }
+      default: {
+        console.debug({ key: evt.key })
+      }
+    }
+  }, [findFocused, groups])
+
+  useEffect(() => {
+    document.addEventListener('keydown', listen)
+    return () => document.removeEventListener('keydown', listen)
+  }, [listen])
+
   const onSubmit = async (
     evt: FormEvent<HTMLFormElement>
   ) => {
@@ -92,7 +175,7 @@ export const ReactionSelector = (
   }
 
   return (
-    <dialog open>
+    <dialog open className={tyl.dialog}>
       <form method="dialog" {...{ onSubmit }}>
         {loading ? <p>Loading…</p> : (
           groups?.map((group: FeedbackGroup) => (
@@ -100,11 +183,14 @@ export const ReactionSelector = (
               <header><h2>{group.title}</h2></header>
               <main>
                 {group.feedbacks?.map((fb?: Feedback) => (
-                  fb && (
-                    <button id={fb.id} key={fb.id}>
+                  (fb && (
+                    <button
+                      id={`${group.id}-${fb.id}`}
+                      key={fb.id}
+                    >
                       {image(fb.image)}
                     </button>
-                  )
+                  ))
                 ))}
               </main>
             </section>
