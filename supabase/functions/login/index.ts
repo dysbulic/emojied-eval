@@ -6,7 +6,9 @@ import {
 } from 'https://deno.land/x/djwt@v3.0.1/mod.ts'
 import { Database } from '../lib/database.types.ts'
 import { cors, getSession } from '../lib/utils.ts';
-// import { decode as b64Decode } from "https://deno.land/std/encoding/base64.ts"
+import {
+  decode as b64Decode
+} from "https://deno.land/std/encoding/base64.ts"
 
 function createErrorResponse({
   error,
