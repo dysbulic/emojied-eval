@@ -4,6 +4,7 @@ import { useSupabase } from '../../lib/useSupabase'
 import Header from '../Header';
 import VideoDialog from '../VideoDialog';
 import tyl from './index.module.css'
+import { Link } from 'react-router-dom';
 
 export type Video = {
   id: string
@@ -78,6 +79,7 @@ export const Videos = () => {
                 <nav>
                   <button onClick={() => edit(vid.id)}>🖉</button>
                   <button onClick={() => remove(vid.id)}>➖</button>
+                  <Link to={`/score/${vid.id}`}>Score:</Link>
                 </nav>
               </li>
             ))}

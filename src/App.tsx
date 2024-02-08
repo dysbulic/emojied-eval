@@ -7,6 +7,7 @@ import SuspendedReactor from './components/SuspendedReactor'
 import FeedbackGroups from './components/FeedbackGroups'
 import Videos from './components/Videos'
 import Reactions from './components/Reactions'
+import Score from './components/Score'
 import './App.css'
 
 export const App = () => (
@@ -21,6 +22,7 @@ export const App = () => (
         <Route path="/videos" element={<Videos/>}/>
         <Route path="/eval/:uuid" element={<SuspendedReactor/>}/>
         <Route path="/reactions" element={<FeedbackGroups/>}/>
+        <Route path="/score/:uuid" element={<Score/>}/>
       </Routes>
     </Router>
   </main>

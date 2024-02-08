@@ -50,6 +50,15 @@ export const VideoDialog = forwardRef(
         description: elements.description.value,
         feedback_group_id: elements.group.value || null,
       }
+      const videoElem = document.createElement('video') as HTMLVideoElement
+      await new Promise<void>((resolve) => {
+        videoElem.addEventListener('loadedmetadata', () => {
+          values.duration = videoElem.duration
+          resolve()
+        } )
+        videoElem.src = values.url
+      })
+      console.log({ values })
       if(video) {
         await supabase.from('videos')
         .update(values)
