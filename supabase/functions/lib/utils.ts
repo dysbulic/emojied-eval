@@ -8,8 +8,8 @@ import {
 
 export const cors = (origin: string) => {
   const allowedOrigins = [
-    /http:\/\/localhost(:\d+)?/,
-    /https:\/\/code.trwb.live/,
+    /^http:\/\/localhost(:\d+)?/,
+    /^https:\/\/code.trwb.live/,
   ]
 
   const headers = new Headers()
@@ -18,11 +18,11 @@ export const cors = (origin: string) => {
   }
   headers.set(
     'Access-Control-Allow-Methods',
-    'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+    'GET, POST, PUT, PATCH, DELETE, OPTIONS',
   )
   headers.set(
     'Access-Control-Allow-Headers',
-    'Content-Type, Authorization, *'
+    'Content-Type, Authorization, *',
   )
   headers.set('Access-Control-Allow-Credentials', 'true')
 
@@ -55,6 +55,8 @@ export const ironSessionConfig = {
   ),
   cookieName: 'mobbing-iron-session',
   cookieOptions: {
+    sameSite: 'None',
+    partitioned: true,
     // httpOnly: false,
     // secure: Boolean(Deno.env.get('SECURE_SESSION') ?? false),
   },
@@ -64,7 +66,7 @@ export const getSession = ({ reqHeaders, resHeaders}) => (
   getIronSession({
     get: (name) => {
       const cookies = getCookies(reqHeaders)
-      console.debug({ name, val: cookies[name] })
+      console.debug({ name, val: cookies[name]?.match(/.{1,30}/g) })
       return cookies[name]
     },
     set: (...args) => {

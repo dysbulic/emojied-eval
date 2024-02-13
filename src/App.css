@@ -26,7 +26,3 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: #2c7a7b;
 }
-
-a {
-  color: teal !important;
-}

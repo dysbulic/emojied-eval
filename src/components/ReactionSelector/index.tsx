@@ -1,11 +1,12 @@
 import {
   of, groupBy, lastValueFrom, map, mergeMap, reduce, toArray,
 } from 'rxjs'
-import { forwardRef, useCallback, useEffect } from 'react'
+import { forwardRef, useCallback, useEffect, MouseEvent } from 'react';
 import { useQuery } from '@tanstack/react-query'
 import useSupabase from '../../lib/useSupabase'
 import { image } from '../../lib/utils';
 import tyl from './index.module.css'
+import { Reaction } from '../ReactionDialog';
 
 export type Feedback = {
   id: string
@@ -20,7 +21,9 @@ export type FeedbackGroup = {
 }
 
 export type Props = {
-  onSelect?: (reaction: Feedback) => void
+  onSelect?: (
+    reaction: Reaction, evt: MouseEvent<HTMLButtonElement>
+  ) => void
   feedbackGroupIds?: Array<string>
 }
 
@@ -41,7 +44,10 @@ export const ReactionSelector = (
               feedbacks (id, image, name, description)
             `)
           )
-          if(feedbackGroupIds) {
+          if(
+            feedbackGroupIds
+            && feedbackGroupIds.filter((g) => !!g).length > 0
+          ) {
             query = query?.in('group_id', feedbackGroupIds)
           }
           const { data: feedbacks } = await query ?? {}
@@ -112,7 +118,9 @@ export const ReactionSelector = (
             feedback: groups[idx.group].feedbacks[idx.feedback]?.id,
           }
           if(id) {
-            const next = document.getElementById(`${id.group}-${id.feedback}`)
+            const next = document.getElementById(
+              `${id.group}-${id.feedback}`
+            )
             next?.focus()
           }
         },
@@ -268,7 +276,7 @@ export const ReactionSelector = (
                           key={fb.id}
                           id={`${group.id}-${fb.id}`}
                           className="reaction"
-                          onClick={() => onSelect?.(fb)}
+                          onClick={(evt) => onSelect?.(fb, evt)}
                         >
                           {image(fb.image)}
                         </button>

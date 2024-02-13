@@ -59,3 +59,6 @@ export const useAnimationFrame = (
     }
   }, [animate, cleanup]) // Make sure the effect runs only once
 }
+
+
+export const here = (any: unknown) => !!any

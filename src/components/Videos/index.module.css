@@ -30,6 +30,7 @@
 
       &:hover > * {
         background-color: var(--hover-bg);
+        transition: background-color 0.5s ease-in-out;
       }
 
       & > * {
@@ -38,7 +39,24 @@
 
       & h2 {
         margin: 0;
-      }
+
+        & a {
+          position: relative;
+          display: block;
+          background-image: linear-gradient(
+            90deg, var(--button-bg) 0%, var(--button-focus-bg) 50%
+          );
+          -webkit-background-clip: text;
+          color: transparent;
+          transition: bnackground-image 1.5s ease-in-out;
+
+          &:hover {
+            background-image: linear-gradient(
+              90deg, var(--button-focus-bg) 0%, var(--button-bg) 50%
+            );
+          }
+        }
+      } 
     }
   }
 }

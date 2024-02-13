@@ -60,7 +60,16 @@ export class Drifter {
   }
 
   set content(content: string) {
-    this.elem.textContent = content
+    let child
+    if(/^(https?|ipfs):\/\//.test(content)) {
+      child = document.createElement('img')
+      child.src = content
+    } else {
+      child = document.createElement('span')
+      child.textContent = content
+    }
+    child.className = 'emoji'
+    this.elem.replaceChildren(child)
   }
 
   set time(t: number) {
@@ -68,7 +77,7 @@ export class Drifter {
       const progress = (t - this.start) / (this.end - this.start)
       const x = `${this.initial.x + Math.cos(6 * Math.PI * progress)}%`
       this.left = x
-      const y = `${-this.initial.y + 100 - (this.height * progress)}%`
+      const y = `${this.initial.y - (this.height * progress)}%`
       this.top = y
       this.opacity = 1 - progress
     } else {

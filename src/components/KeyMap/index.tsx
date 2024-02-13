@@ -28,7 +28,7 @@ export const KeyMap = (
           if(idx >= 0) {
             pos = {
               x: (idx / row.length + 1 / row.length / 2) * 100,
-              y: (1 - ((rowIdx + 1) / keys.length)) * 100,
+              y: ((rowIdx + 1) / keys.length) * 100,
             }
           }
         })

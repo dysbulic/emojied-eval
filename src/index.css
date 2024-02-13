@@ -17,12 +17,21 @@
   --anchor-hover-fg: color-mix(in srgb, var(--anchor-fg) 50%, #000 50%);
   --button-bg: #FF490F;
   --button-fg: #000;
-  --button-border: color-mix(in srgb, var(--button-bg) 75%, #000 25%)
+  --button-border: color-mix(in srgb, var(--button-bg) 75%, #000 25%);
   --hover-bg: #1DA914;
 
-  & button:hover, & button:focus {
-    --button-bg: #6700EB;
-    --button-fg: #EBC500;
+  --button-focus-bg: #6700EB;
+  --button-focus-fg: #EBC500;
+  --button-hover-bg: #B26300;
+  --button-hover-fg: #1AFFCC;
+
+  & button:focus {
+    --button-bg: var(--button-focus-bg);
+    --button-fg: var(--button-focus-fg);
+  }
+  & button:hover {
+    --button-bg: var(--button-hover-bg);
+    --button-fg: var(--button-hover-fg);
   }
 }
 
@@ -75,8 +84,9 @@ button {
 }
 
 .emoji {
-  font-size: var(--icon-size);
-  max-height: var(--icon-size);
+  font-size: calc(var(--icon-size) * .8);
+  height: var(--icon-size);
+  width: var(--icon-size);
 }
 
 .square {

@@ -1,13 +1,15 @@
 import { MouseEvent, useCallback, useEffect, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import toast, { Toaster } from 'react-hot-toast'
 import { useQuery } from '@tanstack/react-query'
 import { useAnimationFrame } from '../../lib/utils'
 import { Drifter } from '../../Drifter'
 import { KeyMap } from '../KeyMap'
 import { useSupabase } from '../../lib/useSupabase'
-import ReactionDialog, { Reaction } from '../ReactionDialog'
+import { type Reaction } from '../ReactionDialog'
 import tyl from './index.module.css'
+import ReactionSelector from '../ReactionSelector'
+import Logo from '../Logo'
 
 export type DrifterConfig = {
   at?: { x: number, y: number },
@@ -17,6 +19,7 @@ export type DrifterConfig = {
 export type Point = { x: number, y: number }
 
 export const Reactor = () => {
+  const dialog = useRef<HTMLDialogElement>(null)
   const overlay = useRef<HTMLDivElement>(null)
   const video = useRef<HTMLVideoElement>(null)
   const drifters = useRef<Array<Drifter>>([])
@@ -25,9 +28,6 @@ export const Reactor = () => {
   )
   const [wasPlaying, setWasPlaying] = useState<boolean>(true)
   const [center, setCenter] = useState<Point>()
-  const [pickerActive, setPickerActive] = (
-    useState<boolean>(false)
-  )
   const [keyMapActive, setKeyMapActive] = (
     useState<boolean>(false)
   )
@@ -64,26 +64,91 @@ export const Reactor = () => {
   )
   useAnimationFrame(updatePositions)
 
+  const listener = useCallback((evt: KeyboardEvent) => {
+    if(!video.current) throw new Error('<video> ref is not set.')
+    switch(evt.key) {
+      case 'Escape': {
+        document.addEventListener('keyup', listener)
+        dialog.current?.close()
+        setKeyMapActive(false)
+        if(wasPlaying) video.current.play()
+        break
+      }
+      case 'e': {
+        setNewConfig({ time: video.current.currentTime * 1000 })
+        setKeyMapActive(true)
+        break
+      }
+      case ' ': {
+        if(video.current.paused) {
+          video.current.play()
+        } else {
+          video.current.pause()
+        }
+        break
+      }
+      case 'ArrowLeft':
+      case 'ArrowRight': {
+        let multiplier = 10
+        if(evt.shiftKey) multiplier *= 2
+        if(evt.ctrlKey) multiplier /= 2
+        if(evt.key === 'ArrowLeft') multiplier *= -1
+        video.current.currentTime += video.current.duration / multiplier
+        break
+      }
+      case 'ArrowUp':
+      case 'ArrowDown': {
+        let delta = 1
+        if(evt.shiftKey) delta *= 2
+        if(evt.ctrlKey) delta /= 2
+        if(evt.key === 'ArrowDown') delta *= -1
+        video.current.currentTime += delta
+        break
+      }
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9': {
+        let rate = Number(evt.key)
+        if(rate === 0) rate = 0.5
+        video.current.playbackRate = rate
+        toast(`Playback ⨯${rate}`)
+        break
+      }
+      default: {
+        console.debug({ key: evt.key })
+      }
+    }
+  }, [wasPlaying])
+
   const onClick = useCallback(
     (evt: MouseEvent<HTMLDivElement>) => {
       if(!video.current) throw new Error('<video> not found.')
       const click = { x: evt.clientX, y: evt.clientY }
-      setCenter(click)
-      setPickerActive(true)
       const at = {
         x: click.x / video.current.clientWidth * 100,
-        y: (1 - click.y / video.current.clientHeight) * 100,
+        y: click.y / video.current.clientHeight * 100,
       }
+      setCenter(at)
       setNewConfig({ at, time: video.current.currentTime * 1000 })
       setWasPlaying(!video.current.paused)
       video.current.pause()
+      document.removeEventListener('keyup', listener)
+      dialog.current?.showModal()
     },
-    [],
+    [listener],
   )
 
-  const onClose = () => {
-    if(pickerActive) setPickerActive(false)
-  }
+  const onClose = useCallback(() => {
+    document.addEventListener('keyup', listener)
+    dialog.current?.close()
+  }, [listener])
 
   const onReactionSelect = async (
     reaction: Reaction, evt: MouseEvent<HTMLButtonElement>
@@ -112,7 +177,6 @@ export const Reactor = () => {
       className: tyl.drifting ,
     }))
 
-    setPickerActive(false)
     setNewConfig(null)
 
     if(wasPlaying) video.current.play()
@@ -147,112 +211,48 @@ export const Reactor = () => {
     }
   }
 
-
   useEffect(() => {
-    const listener = (evt: KeyboardEvent) => {
-      if(!video.current) throw new Error('<video> ref is not set.')
-      switch(evt.key) {
-        case 'Escape': {
-          setPickerActive(false)
-          setKeyMapActive(false)
-          if(wasPlaying) video.current.play()
-          break
-        }
-        case 'e': {
-          setNewConfig({ time: video.current.currentTime * 1000 })
-          setKeyMapActive(true)
-          break
-        }
-        case ' ': {
-          if(video.current.paused) {
-            video.current.play()
-          } else {
-            video.current.pause()
-          }
-          break
-        }
-        case 'ArrowLeft':
-        case 'ArrowRight': {
-          let multiplier = 10
-          if(evt.shiftKey) multiplier *= 2
-          if(evt.ctrlKey) multiplier /= 2
-          if(evt.key === 'ArrowLeft') multiplier *= -1
-          video.current.currentTime += video.current.duration / multiplier
-          break
-        }
-        case 'ArrowUp':
-        case 'ArrowDown': {
-          let delta = 1
-          if(evt.shiftKey) delta *= 2
-          if(evt.ctrlKey) delta /= 2
-          if(evt.key === 'ArrowDown') delta *= -1
-          video.current.currentTime += delta
-          break
-        }
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9': {
-          let rate = Number(evt.key)
-          if(rate === 0) rate = 0.5
-          video.current.playbackRate = rate
-          toast(`Playback ⨯${rate}`)
-          break
-        }
-        default: {
-          console.debug({ key: evt.key })
-        }
-      }
-    }
     document.addEventListener('keyup', listener)
-
     return () => {
       document.removeEventListener('keyup', listener)
     }
-  }, [wasPlaying])
+  }, [listener])
 
   const onKeySelect = (at: Point) => {
     if(!video.current) throw new Error('<video> ref is not set.')
-    const center = {
-      x: at.x * video.current.clientWidth / 100,
-      y: video.current.clientHeight * (1 - at.y / 100),
-    }
-    setCenter(center)
+    setCenter(at)
     setKeyMapActive(false)
-    setPickerActive(true)
     setNewConfig({ ...newConfig, at })
     setWasPlaying(!video.current.paused)
     video.current.pause()
+    dialog.current?.showModal()
   }
-
-  if(!videoConfig) return <h3>Loading…</h3>
 
   return (
     <article id={tyl.reactor}>
       <Toaster/>
       <section className={tyl.video}>
-        <video controls muted autoPlay ref={video}> 
-          <source src={videoConfig.url}/>
-          <track default src="animated.vtt" kind="subtitles" label="Animated"/>
-        </video>
+        {!videoConfig ? (
+          <h3>Loading…</h3>
+        ) : (
+          <video controls muted autoPlay ref={video}> 
+            <source src={videoConfig.url}/>
+            <track default src="animated.vtt" kind="subtitles" label="Animated"/>
+          </video>
+        )}
         <div id={tyl.overlay} ref={overlay} {...{ onClick }}></div>
         <KeyMap active={keyMapActive} onSelect={onKeySelect}/>
       </section>
-      <ReactionDialog 
-        groupId={videoConfig?.feedback_group_id}
+      <Link to="/" className={tyl.home}>
+        <Logo/>
+      </Link>
+      <ReactionSelector
+        feedbackGroupIds={[videoConfig?.feedback_group_id]}
+        ref={dialog}
+        onSelect={onReactionSelect}
         {...{
-          onReactionSelect,
           onClose,
-        }}
-        style={{
-          top: center?.x,
-          left: center?.y,
+          center,
         }}
       />
     </article>

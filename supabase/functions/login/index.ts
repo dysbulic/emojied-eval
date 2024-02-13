@@ -7,7 +7,7 @@ import {
 import { Database } from '../lib/database.types.ts'
 import { cors, getSession } from '../lib/utils.ts';
 import {
-  decode as b64Decode
+  decodeBase64
 } from "https://deno.land/std/encoding/base64.ts"
 
 function createErrorResponse({
@@ -37,6 +37,14 @@ serve(async (req) => {
   }
 
   try {
+    const supabase = createClient<Database>(
+      Deno.env.get('SUPABASE_URL') as string,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string
+    )
+
+    const session = await supabase.auth.getSession()
+    console.debug({ session })
+
     const iron = await getSession({
       reqHeaders, resHeaders: headers,
     })
@@ -50,11 +58,6 @@ serve(async (req) => {
     iron.address = address
     iron.chainId = chainId
     await iron.save();
-
-    const supabase = createClient<Database>(
-      Deno.env.get('SUPABASE_URL') as string,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string
-    )
 
     const { data: byAddy, error } = (
       await supabase.from('addresses').upsert(
@@ -110,13 +113,11 @@ serve(async (req) => {
       )
     }
 
-    const rawJWTSecret = (
-      Deno.env.get('JWT_SECRET_B64') ? (
-        b64Decode(jwtSecret)
-      ) : (
-        new TextEncoder().encode(jwtSecret)
-      )
-    )
+    let rawJWTSecret = jwtSecret
+    if(Deno.env.get('JWT_SECRET_B64')) {
+      rawJWTSecret = decodeBase64(jwtSecret)
+    }
+    rawJWTSecret = new TextEncoder().encode(rawJWTSecret)
 
     const key = await crypto.subtle.importKey(
       'raw', // format of the key's data

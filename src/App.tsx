@@ -18,6 +18,7 @@ export const App = () => (
         <Route path="/" element={<Home/>}/>
         <Route path="/config" element={<Configuration/>}/>
         <Route path="/view" element={<Reactor/>}/>
+        <Route path="/selector/:uuid" element={<Reactions/>}/>
         <Route path="/selector" element={<Reactions/>}/>
         <Route path="/videos" element={<Videos/>}/>
         <Route path="/eval/:uuid" element={<SuspendedReactor/>}/>
