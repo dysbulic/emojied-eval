@@ -62,7 +62,6 @@ export const VideoDialog = forwardRef(
         } )
         videoElem.src = values.url
       })
-      console.log({ values })
       const { data: vid, error } = (
         await supabase.from('videos')
         .upsert(values)
@@ -70,7 +69,6 @@ export const VideoDialog = forwardRef(
         .single()
       ) ?? {}
       if(error) throw error
-      console.debug({ vid })
       await supabase.from('feedback_groups_videos')
       .upsert({
         video_id: vid.id,

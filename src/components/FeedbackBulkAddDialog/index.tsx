@@ -1,15 +1,14 @@
 import { FormEvent, forwardRef, useRef, /* useState */ } from 'react'
+import JSON5 from 'json5'
 import { useSupabase } from '../../lib/useSupabase'
 import { Feedback } from '../ReactionSelector'
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom'
+import Papa from 'papaparse'
 import tyl from './index.module.css'
 import formtyl from '../../styles/form.module.css'
 
 interface FormElements extends HTMLFormControlsCollection {
-  id: HTMLInputElement
-  image: HTMLInputElement
-  name: HTMLInputElement
-  description: HTMLInputElement
+  text: HTMLTextAreaElement
 }
 
 export type Props = {
@@ -36,12 +35,12 @@ export const FeedbackBulkAddDialog = forwardRef<HTMLDialogElement, Props>(
     const onSubmit = async (evt: FormEvent<HTMLFormElement>) => {
       if(!supabase) throw new Error('Supabase not defined.')
       const elements = evt.currentTarget.elements as FormElements
-      const values = {
-        image: elements.image.value,
-        name: elements.name.value,
-        description: elements.description.value,
-        id: elements.id?.value || undefined,
-      }
+      const text = elements.text.value.trim()
+      const values = (text.startsWith('[') ? (
+        JSON5.parse(text)
+      ) : (
+        Papa.parse(text, { header: true }).data
+      ))
       await supabase.from('feedbacks').upsert(values)
       close()
     }
@@ -81,7 +80,20 @@ export const FeedbackBulkAddDialog = forwardRef<HTMLDialogElement, Props>(
             id="text"
             placeholder={`image-url, name, feedback-group-ids, description
 https://code.trwb.live/logo.svg, Swirling Mobster, , ¡Mama Mia!: ¡Look at it!
-https://trwb.live/logo.svg, The Big T, , "It's a bigun!"`}
+https://trwb.live/logo.svg, The Big T, , "It's a bigun!"
+                       or
+[
+  {
+    imageUrl: 'https://code.trwb.live/logo.svg',
+    name: 'Swirling Mobster',
+    description: '¡Mama Mia!: ¡Look at it!',
+  },
+  {
+    imageUrl: 'https://trwb.live/logo.svg',
+    name: 'The Big T',
+    description: "It's a bigun!",
+  },
+]`}
           />
           <section className={formtyl.buttons}>
             <button

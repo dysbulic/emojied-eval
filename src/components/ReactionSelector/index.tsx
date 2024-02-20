@@ -249,9 +249,7 @@ export const ReactionSelector = (
             }
             break
           }
-          default: {
-            console.debug({ key: evt.key })
-          }
+          default: { null }
         }
       }, [findFocused, focus, groups])
 

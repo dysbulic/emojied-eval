@@ -1,5 +1,4 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { cors, getSession, ironSessionConfig } from '../lib/utils.ts'
 import { unsealData } from 'https://esm.sh/iron-session@latest'
 import { getCookies } from 'https://deno.land/std/http/mod.ts'
@@ -15,13 +14,6 @@ serve(async (req) => {
       return new Response(null, { headers })
     }
 
-    const supabase = createClient<Database>(
-      Deno.env.get('SUPABASE_URL') as string,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string
-    )
-    const session = await supabase.auth.getSession()
-    console.debug({ session })
-
     const iron = await getSession({
       reqHeaders, resHeaders: headers,
     })
@@ -31,7 +23,7 @@ serve(async (req) => {
         getCookies(reqHeaders)?.[ironSessionConfig.cookieName]
       )
       if(cookie) {
-        console.debug('Manually parsing cookie.')
+        console.warn('Manually parsing cookie.')
         ret = await unsealData(cookie, {
           password: ironSessionConfig.password,
           ttl: 60 * 60 * 24 * 14,

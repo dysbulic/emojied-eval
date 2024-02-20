@@ -29,8 +29,6 @@ export const FeedbackDialog = forwardRef<HTMLDialogElement, Props>(
     const form = useRef<HTMLFormElement>(null)
     const { supabase } = useSupabase()
 
-    console.debug({ feedback, description })
-
     useEffect(() => {
       setName(feedback?.name)
       setImage(feedback?.image)

@@ -42,9 +42,6 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string
     )
 
-    const session = await supabase.auth.getSession()
-    console.debug({ session })
-
     const iron = await getSession({
       reqHeaders, resHeaders: headers,
     })

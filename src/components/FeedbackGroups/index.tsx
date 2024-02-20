@@ -222,6 +222,18 @@ export const FeedbackGroups = () => {
               bulkDialog.current?.showModal()
             }}
           >Bulk Add Groups</button>
+          <button
+            type="button"
+            onClick={() => {
+              bulkDialog.current?.showModal()
+            }}
+          >Export as JSON5</button>
+          <button
+            type="button"
+            onClick={() => {
+              bulkDialog.current?.showModal()
+            }}
+          >Export as CSV</button>
         </form>
       )}
       <form onSubmit={onNewGroup} id={tyl.new}>

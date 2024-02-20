@@ -66,6 +66,7 @@ export const Reactor = () => {
 
   const listener = useCallback((evt: KeyboardEvent) => {
     if(!video.current) throw new Error('<video> ref is not set.')
+    let rate = null
     switch(evt.key) {
       case 'Escape': {
         document.addEventListener('keyup', listener)
@@ -105,25 +106,50 @@ export const Reactor = () => {
         video.current.currentTime += delta
         break
       }
-      case '0':
-      case '1':
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-      case '6':
-      case '7':
-      case '8':
+      case '0': {
+        rate = 0.25
+      }
+      // eslint-disable-next-line no-fallthrough
+      case '1': {
+        rate = 0.5
+      }
+      // eslint-disable-next-line no-fallthrough
+      case '2': {
+        rate = 1
+      }
+      // eslint-disable-next-line no-fallthrough
+      case '3': {
+        rate = 1.25
+      }
+      // eslint-disable-next-line no-fallthrough
+      case '4': {
+        rate = 1.5
+      }
+      // eslint-disable-next-line no-fallthrough
+      case '5': {
+        rate = 2
+      }
+      // eslint-disable-next-line no-fallthrough
+      case '6': {
+        rate = 4
+      }
+      // eslint-disable-next-line no-fallthrough
+      case '7': {
+        rate = 8
+      }
+      // eslint-disable-next-line no-fallthrough
+      case '8': {
+        rate = 10
+      }
+      // eslint-disable-next-line no-fallthrough
       case '9': {
-        let rate = Number(evt.key)
-        if(rate === 0) rate = 0.5
+        rate = 20
+        
         video.current.playbackRate = rate
         toast(`Playback ⨯${rate}`)
         break
       }
-      default: {
-        console.debug({ key: evt.key })
-      }
+      default: { null }
     }
   }, [wasPlaying])
 

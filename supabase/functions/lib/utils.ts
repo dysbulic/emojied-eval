@@ -66,7 +66,7 @@ export const getSession = ({ reqHeaders, resHeaders}) => (
   getIronSession({
     get: (name) => {
       const cookies = getCookies(reqHeaders)
-      console.debug({ name, val: cookies[name]?.match(/.{1,30}/g) })
+      // console.debug({ name, val: cookies[name]?.match(/.{1,30}/g) })
       return cookies[name]
     },
     set: (...args) => {
