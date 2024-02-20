@@ -1,5 +1,3 @@
-/* eslint-disable no-fallthrough */
-
 import { MouseEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import toast, { Toaster } from 'react-hot-toast'
@@ -68,7 +66,6 @@ export const Reactor = () => {
 
   const listener = useCallback((evt: KeyboardEvent) => {
     if(!video.current) throw new Error('<video> ref is not set.')
-    let rate = null
     switch(evt.key) {
       case 'Escape': {
         document.addEventListener('keyup', listener)
@@ -108,45 +105,24 @@ export const Reactor = () => {
         video.current.currentTime += delta
         break
       }
-      case '0': {
-        rate = 0.25
-      }
-      // eslint-disable-next-line no-fallthrough
-      case '1': {
-        rate = 0.5
-      }
-      // eslint-disable-next-line no-fallthrough
-      case '2': {
-        rate = 1
-      }
-      // eslint-disable-next-line no-fallthrough
-      case '3': {
-        rate = 1.25
-      }
-      // eslint-disable-next-line no-fallthrough
-      case '4': {
-        rate = 1.5
-      }
-      // eslint-disable-next-line no-fallthrough
-      case '5': {
-        rate = 2
-      }
-      // eslint-disable-next-line no-fallthrough
-      case '6': {
-        rate = 4
-      }
-      // eslint-disable-next-line no-fallthrough
-      case '7': {
-        rate = 8
-      }
-      // eslint-disable-next-line no-fallthrough
-      case '8': {
-        rate = 10
-      }
-      // eslint-disable-next-line no-fallthrough
-      case '9': {
-        rate = 20
-
+      case '0': case '1': case '2': case '3': case '4':
+      case '5': case '6': case '7': case '8': case '9': {
+        // I can't disable ESLint complaining about fallthrough
+        const rate = (() => {
+          switch(evt.key) {
+            case '0': return 0.25
+            case '1': return 0.5
+            case '2': return 1
+            case '3': return 1.25
+            case '4': return 1.5
+            case '5': return 2
+            case '6': return 4
+            case '7': return 8
+            case '8': return 10
+            case '9': return 20
+            default: return 1
+          }
+        })()
         video.current.playbackRate = rate
         toast(`Playback ⨯${rate}`)
         break
