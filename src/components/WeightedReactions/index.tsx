@@ -46,31 +46,64 @@ export const WeightedReactions = (
   }, [defaultWeights])
 
   return (
-    <section>
+    <section id={tyl.reactions}>
       <h2>Weighted Reactions</h2>
-      <form onSubmit={() => {
-        setRubric(rubrics?.find(({ id }: { id: string }) => (
-          id === rubricHold
-        )))
-      }}>
-        <select
+      <form
+        className={tyl['use-rubric']}
+        onSubmit={() => {
+          setRubric(rubrics?.find((
+            { id }: { id: string }
+          ) => (
+            id === rubricHold
+          )))
+        }}
+      >
+        <input
           id="rubric"
           onChange={({ target: { value } }) => (
             setRubricHold(value)
           )}
           value={rubricHold ?? ''}
-        >
+          list="rubrics"
+        />
+        <datalist id="rubrics">
           <option value="">Choose a Rubric…</option>
           {rubrics?.map(
             ({ id, name }: { id: string, name: string }) => (
               <option key={id} value={id}>{name}</option>
             )
           )}
-        </select>
+        </datalist>
         <nav>
+          {rubrics && rubrics?.length > 0 && (
+            <button
+            >⤟💾 Load a Rubric</button>
+          )}
           <button
-          >⤟💾 Load a Rubric</button>
-          <button>⤟🗃 Add a Rubric</button>
+            type="button"
+            onClick={async () => {
+              const { data: newRubric } = (
+                await supabase
+                .from('rubrics')
+                .insert({
+                  feedback_group_id: video.feedback_group_id,
+                  name: rubric,
+                  default_weight: 1,
+                })
+                .single()
+              )
+              setRubric(newRubric)
+            }}
+          >⤟🗃 Add a Rubric</button>
+          {rubric && (
+            <button
+              type="button"
+              onClick={() => {
+                setWeights({})
+                setRubric(null)
+              }}
+            >⤟🖥 Update a Rubric</button>
+          )}
         </nav>
       </form>
       <ul className={tyl.listGrid}>

@@ -7,3 +7,25 @@
     display: contents;
   }
 }
+
+#reactions {
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+  place-items: center;
+
+  & input, & output {
+    text-align: center;
+  }
+
+  & .use-rubric {
+    display: flex;
+    gap: 1rem;
+
+    & nav {
+      display: flex;
+      gap: 1rem;
+      flex-direction: column;
+    }
+  }
+}

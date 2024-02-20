@@ -1,29 +1,67 @@
+import React, { Suspense } from 'react' // This is the only line that changed
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
-import Home from './components/Home'
-import Configuration from './components/Configuration'
-import Reactor from './components/Reactor'
-import SuspendedReactor from './components/SuspendedReactor'
-import FeedbackGroups from './components/FeedbackGroups'
-import Videos from './components/Videos'
-import Reactions from './components/Reactions'
-import Score from './components/Score'
 import './App.css'
+
+const Home = React.lazy(() => import('./components/Home'))
+const Configuration = React.lazy(() => import('./components/Configuration'))
+const Reactor = React.lazy(() => import('./components/Reactor'))
+const SuspendedReactor = React.lazy(() => import('./components/SuspendedReactor'))
+const FeedbackGroups = React.lazy(() => import('./components/FeedbackGroups'))
+const Videos = React.lazy(() => import('./components/Videos'))
+const Reactions = React.lazy(() => import('./components/Reactions'))
+const Score = React.lazy(() => import('./components/Score'))
 
 export const App = () => (
   <main>
     <Toaster/>
     <Router>
       <Routes>
-        <Route path="/" element={<Home/>}/>
-        <Route path="/config" element={<Configuration/>}/>
-        <Route path="/view" element={<Reactor/>}/>
-        <Route path="/selector/:uuid" element={<Reactions/>}/>
-        <Route path="/selector" element={<Reactions/>}/>
-        <Route path="/videos" element={<Videos/>}/>
-        <Route path="/eval/:uuid" element={<SuspendedReactor/>}/>
-        <Route path="/reactions" element={<FeedbackGroups/>}/>
-        <Route path="/score/:uuid" element={<Score/>}/>
+        <Route path="/" element={
+          <Suspense fallback={<em>Loading Home…</em>}>
+            <Home/>
+          </Suspense>
+        }/>
+        <Route path="/config" element={
+          <Suspense fallback={<em>Loading Configuration…</em>}>
+            <Configuration/>
+          </Suspense>
+        }/>
+        <Route path="/view" element={
+          <Suspense fallback={<em>Loading Reactor…</em>}>
+            <Reactor/>
+          </Suspense>
+        }/>
+        <Route path="/selector/:uuid" element={
+          <Suspense fallback={<em>Loading Reactions…</em>}>
+            <Reactions/>
+          </Suspense>
+        }/>
+        <Route path="/selector" element={
+          <Suspense fallback={<em>Loading Videos…</em>}>
+            <Reactions/>
+          </Suspense>
+        }/>
+        <Route path="/videos" element={
+          <Suspense fallback={<em>Loading Videos…</em>}>
+            <Videos/>
+          </Suspense>
+        }/>
+        <Route path="/eval/:uuid" element={
+          <Suspense fallback={<em>Loading Suspended Reactor…</em>}>
+            <SuspendedReactor/>
+          </Suspense>
+        }/>
+        <Route path="/reactions" element={
+          <Suspense fallback={<em>Loading Feedback Groups…</em>}>
+            <FeedbackGroups/>
+          </Suspense>
+        }/>
+        <Route path="/score/:uuid" element={
+          <Suspense fallback={<em>Loading Score…</em>}>
+            <Score/>
+          </Suspense>
+        }/>
       </Routes>
     </Router>
   </main>
