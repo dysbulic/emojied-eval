@@ -1,6 +1,6 @@
 import { Fragment, HTMLAttributes, ReactNode } from 'react'
 import { ConnectKitButton, useModal } from 'connectkit'
-import { supabase as supaConfig } from '../../config' 
+import { supabase as supaConfig } from '../../config'
 
 const Section = (
   { children, ...props }: { children: ReactNode }

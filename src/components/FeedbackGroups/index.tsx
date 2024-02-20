@@ -1,11 +1,13 @@
-import { FormEvent, useCallback, useEffect, useRef, useState } from 'react'
+import React, {
+  FormEvent, useCallback, useEffect, useRef, useState,
+} from 'react'
 import { useQuery } from '@tanstack/react-query'
 import useSupabase from '../../lib/useSupabase'
 import { emoji } from '../../lib/utils'
 import FeedbackDialog from '../FeedbackDialog'
 import Header from '../Header'
-import tyl from './index.module.css'
 import { Feedback } from '../ReactionSelector'
+import tyl from './index.module.css'
 
 interface EditFormElements extends HTMLFormControlsCollection {
   group: HTMLSelectElement

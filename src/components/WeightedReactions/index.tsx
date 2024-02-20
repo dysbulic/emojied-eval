@@ -1,10 +1,9 @@
-import { useQuery } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ReactedVideo } from '../Score'
 import useSupabase from '../../lib/useSupabase'
 import { emoji } from '../../lib/utils'
 import tyl from './index.module.css'
-import { useFeedbacksIn, useRubrics } from './queries'
+import { useFeedbacksIn, useRubrics, useWeights } from './queries'
 
 type Maybe<T> = T | null | undefined
 export type Rubric = {
@@ -25,6 +24,9 @@ export const WeightedReactions = (
     return counts
   }, [video.reactions])
   const [rubric, setRubric] = useState<Maybe<Rubric>>()
+  const [weights, setWeights] = (
+    useState<Record<string, number | string>>({})
+  )
   const [rubricHold, setRubricHold] = (
     useState<Maybe<string>>()
   )
@@ -36,40 +38,20 @@ export const WeightedReactions = (
   const { data: rubrics } = useRubrics(
     supabase, video.feedback_group_id,
   )
-  const { data: weights } = useQuery({
-    queryKey: [
-      'rubrics', rubric?.id, { supabase }
-    ],
-    queryFn: async () => {
-      if(!supabase) throw new Error('`supabase` not available.')
-      let query = (
-        supabase.from('feedback_weights')
-        .select(`
-          id, weight
-        `)
-        .eq('rubric_id', rubric?.id)
-      )
-      if(video.feedback_group_id) {
-        query = (
-          query
-          .eq('feedback_group_id', video.feedback_group_id)
-        )
-      }
-      const { data, error } = await query
-      console.debug({ data })
-      if(error) throw error
-      return Object.fromEntries(
-        data.map(({ id, weight }) => [id, weight])
-      )
-    },
-    enabled: !!supabase,
-  })
+  const { data: defaultWeights } = useWeights(
+    supabase, video.feedback_group_id,
+  )
+  useEffect(() => {
+    if(defaultWeights) setWeights(defaultWeights)
+  }, [defaultWeights])
 
   return (
     <section>
       <h2>Weighted Reactions</h2>
-      <form onSubmit={({ currentTarget: { elements } }) => {
-        setRubric(rubrics?.find(({ id }) => id === rubricHold))
+      <form onSubmit={() => {
+        setRubric(rubrics?.find(({ id }: { id: string }) => (
+          id === rubricHold
+        )))
       }}>
         <select
           id="rubric"
@@ -79,11 +61,17 @@ export const WeightedReactions = (
           value={rubricHold ?? ''}
         >
           <option value="">Choose a Rubric…</option>
-          {rubrics?.map(({ id, name }) => (
-            <option key={id} value={id}>{name}</option>
-          ))}
+          {rubrics?.map(
+            ({ id, name }: { id: string, name: string }) => (
+              <option key={id} value={id}>{name}</option>
+            )
+          )}
         </select>
-        <button>Load</button>
+        <nav>
+          <button
+          >⤟💾 Load a Rubric</button>
+          <button>⤟🗃 Add a Rubric</button>
+        </nav>
       </form>
       <ul className={tyl.listGrid}>
         {Object.entries(counts).map(([id, count]) => {
@@ -102,9 +90,15 @@ export const WeightedReactions = (
                 id={`weight-${id}`}
                 type="number"
                 value={weight}
-                readOnly
+                onChange={({ target: { value } }) => {
+                  setWeights((w) => (
+                    { ...w, [id]: value }
+                  ))
+                }}
               />
-              <output>{count * weight}</output>
+              <output>
+                {(count * Number(weight)).toLocaleString()}
+              </output>
             </li>
           )
         })}

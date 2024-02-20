@@ -46,7 +46,7 @@ export const ReactionDialog = forwardRef(
         const { data, error } = (
           await query
         ) ?? {}
-        if(error) throw error 
+        if(error) throw error
         return data
       },
       enabled: !!supabase,

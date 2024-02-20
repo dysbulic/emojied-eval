@@ -5,7 +5,7 @@ DO $$
 BEGIN
     IF NOT EXISTS (
         SELECT 1
-        FROM   information_schema.table_constraints 
+        FROM   information_schema.table_constraints
         WHERE  constraint_name = 'videos_feedback_group_id_fkey'
     ) THEN
         ALTER TABLE videos

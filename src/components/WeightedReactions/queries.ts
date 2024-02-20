@@ -26,6 +26,7 @@ export const useFeedbacksIn = (
 export const useRubrics = (
   supabase: SupabaseClient, feedback_group_id?: Maybe<string>
 ) => {
+ return (
   useQuery({
     queryKey: [
       'rubrics', feedback_group_id, supabase
@@ -47,21 +48,20 @@ export const useRubrics = (
     },
     enabled: !!supabase,
   })
+ )
 }
 
 export const useWeights = (
   supabase: SupabaseClient, rubric_id?: Maybe<string>
 ) => useQuery({
   queryKey: [
-    'rubrics', rubric?.id, { supabase }
+    'rubrics', rubric_id, supabase
   ],
   queryFn: async () => {
     if(!supabase) throw new Error('`supabase` not available.')
     let query = (
       supabase.from('feedback_weights')
-      .select(`
-        feedback_id, weight
-      `)
+      .select('feedback_id, weight')
     )
     if(rubric_id) {
       query = (
@@ -72,7 +72,9 @@ export const useWeights = (
     const { data, error } = await query
     if(error) throw error
     return Object.fromEntries(
-      data.map(({ id, weight }) => [id, weight])
+      data.map(({ feedback_id, weight }) => (
+        [feedback_id, weight]
+      ))
     )
   },
   enabled: !!supabase,

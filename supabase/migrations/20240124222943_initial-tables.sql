@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS videos (
   updated_at timestamp with time zone DEFAULT now() NOT NULL,
   url text NOT NULL,
   creator_id uuid DEFAULT auth.uid() NOT NULL,
-  slug text, 
+  slug text,
   recorded_at timestamp with time zone,
   title text NOT NULL,
   description text,
