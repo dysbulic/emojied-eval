@@ -16,7 +16,7 @@
       :root {
         --mix-percent: 35%;
         --mix-color: white;
-        --anim-dur: 15s;
+        --anim-dur: 30s;
       }
       svg:hover {
         --anim-dur: 3s;
