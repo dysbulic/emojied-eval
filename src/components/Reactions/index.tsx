@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useRef, useState } from "react"
 import ReactionSelector, { type Feedback } from "../ReactionSelector"
-import { image } from "../../lib/utils"
+import { emoji } from "../../lib/utils"
 import KeyMap from "../KeyMap"
 import tyl from './index.module.css'
 import { Point } from "../Reactor"
@@ -11,7 +11,7 @@ export const Reactions = () => {
   const [active, setActive] = useState(false)
   const [position, setPosition] = useState<Point>()
   const onReactionSelect = (reaction: Feedback) => {
-    const Image = image(
+    const Image = emoji(
       reaction.image,
       {
         key: `${Date.now()}`,

@@ -5,15 +5,17 @@ import { useEffect, useState } from 'react'
 
 type Maybe<T> = T | null
 export type ReturnType = {
-  supabase: Maybe<SupabaseClient>
+  supabase: SupabaseClient
   hasJWT: boolean
   error?: string
 }
 
 export const useSupabase = () => {
-  const [supabase, setSupabase] = useState<Maybe<SupabaseClient>>(null)
-  const [error, setError] = useState<Maybe<string>>(null)
   const jwt = localStorage.getItem(supaConfig.jwtStorageKey)
+  const [supabase, setSupabase] = (
+    useState(createClient(supaConfig.url, jwt || supaConfig.anonKey))
+  )
+  const [error, setError] = useState<Maybe<string>>(null)
 
   useEffect(() => {
     setError(null)
@@ -39,10 +41,21 @@ export const useSupabase = () => {
 
   const ret: ReturnType = {
     supabase,
-    hasJWT: !!localStorage.getItem(supaConfig.jwtStorageKey),
+    hasJWT: !!jwt,
   }
   if(error) ret.error = error
   return ret
+}
+
+export const onlyClient = (supabase: unknown) => {
+  if(!supabase) throw new Error('`supabase` not available.')
+  if(typeof supabase === 'string') {
+    throw new Error('`supabase` is a string.')
+  }
+  if(Array.isArray(supabase)) {
+    throw new Error('`supabase` is an array.')
+  }
+  return supabase as SupabaseClient
 }
 
 export default useSupabase

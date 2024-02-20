@@ -10,7 +10,7 @@ export const Header = (
   {
     children?: ReactNode
     className?: string
-    props: HTMLAttributes<HTMLHeadingElement>
+    props?: HTMLAttributes<HTMLHeadingElement>
   }
 ) => (
   <header

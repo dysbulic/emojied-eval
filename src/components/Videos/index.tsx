@@ -1,17 +1,18 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useSupabase } from '../../lib/useSupabase'
-import Header from '../Header';
-import VideoDialog from '../VideoDialog';
+import Header from '../Header'
+import VideoDialog from '../VideoDialog'
+import { Link } from 'react-router-dom'
 import tyl from './index.module.css'
-import { Link } from 'react-router-dom';
 
 export type Video = {
-  id: string
+  id?: string
   url: string
   title: string
   description: string
-  feedback_group_id: string
+  feedback_group_id?: string
+  duration?: number
 }
 
 export const Videos = () => {
@@ -79,7 +80,7 @@ export const Videos = () => {
                 <nav>
                   <button onClick={() => edit(vid.id)}>🖉</button>
                   <button onClick={() => remove(vid.id)}>➖</button>
-                  <Link to={`/score/${vid.id}`}>Score:</Link>
+                  <Link to={`/score/${vid.id}`}>🎼</Link>
                 </nav>
               </li>
             ))}

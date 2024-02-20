@@ -7,14 +7,16 @@ export const capitalize = (str: string) => (
   )
 )
 
-export const image = (
+export const emoji = (
   str: string,
   props?: Attributes & HTMLAttributes<Element>,
 ) => {
+  props ??= {}
+  props.className = [props.className, 'emoji'].join(' ')
   if(/^(https?|ipfs):\/\//.test(str)) {
-    return <img src={str} className="emoji" {...props}/>
+    return <img src={str} {...props}/>
   }
-  return <span className="emoji" {...props}>{str}</span>
+  return <span {...props}>{str}</span>
 }
 
 // Replaced by Rxjs, but I'd still like to know how to type it.

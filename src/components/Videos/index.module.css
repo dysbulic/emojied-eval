@@ -4,11 +4,13 @@
 }
 
 #outer {
-  & li button {
+  & li nav button, & li nav a {
     aspect-ratio: 1;
     font-size: 1.25rem;
     border-radius: 0.5rem;
     margin-inline: 0.5rem;
+    padding: 0.5rem;
+    line-height: 1.5rem;
     background-color: var(--button-bg);
     color: var(--button-fg);
     border: 2px solid var(--button-border);
@@ -24,6 +26,7 @@
   & ol {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
 
     & li {
       display: contents;
@@ -48,7 +51,7 @@
           );
           -webkit-background-clip: text;
           color: transparent;
-          transition: bnackground-image 1.5s ease-in-out;
+          transition: background-image 1.5s ease-in-out;
 
           &:hover {
             background-image: linear-gradient(

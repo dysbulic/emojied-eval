@@ -3,7 +3,7 @@ import {
 } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useSupabase } from '../../lib/useSupabase'
-import { Video } from '../Videos'
+import type { Video } from '../Videos'
 import tyl from './index.module.css'
 import formtyl from '../../styles/form.module.css'
 
@@ -13,7 +13,6 @@ interface FormElements extends HTMLFormControlsCollection {
   description: HTMLInputElement
   group: HTMLSelectElement
 }
-
 type Maybe<T> = T | null | undefined
 
 export const VideoDialog = forwardRef(
@@ -44,28 +43,22 @@ export const VideoDialog = forwardRef(
     const onSubmit = async (evt: FormEvent<HTMLFormElement>) => {
       if(!supabase) throw new Error('Supabase not defined.')
       const elements = evt.currentTarget.elements as FormElements
-      const values = {
+      const values: Video = {
+        id: video?.id,
         url: elements.url.value,
         title: elements.title.value,
         description: elements.description.value,
-        feedback_group_id: elements.group.value || null,
+        feedback_group_id: elements.group.value || undefined,
       }
       const videoElem = document.createElement('video') as HTMLVideoElement
-      await new Promise<void>((resolve) => {
+      values.duration = await new Promise<number>((resolve) => {
         videoElem.addEventListener('loadedmetadata', () => {
-          values.duration = videoElem.duration
-          resolve()
+          resolve(videoElem.duration)
         } )
         videoElem.src = values.url
       })
       console.log({ values })
-      if(video) {
-        await supabase.from('videos')
-        .update(values)
-        .eq('id', video.id)
-      } else {
-        await supabase.from('videos').insert(values)
-      }
+      await supabase.from('videos').upsert(values)
       close()
     }
 
@@ -116,7 +109,7 @@ export const VideoDialog = forwardRef(
             </textarea>
           </label>
           <label>
-            <h3>Feedback Group</h3>
+            <h3 className={tyl.split}>Feedback Group</h3>
             {loading ? <p>Loading…</p> : (
               <select id="group" defaultValue={video?.feedback_group_id}>
                 <option value="" className={tyl.noneOption}>None</option>

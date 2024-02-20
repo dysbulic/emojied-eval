@@ -1,7 +1,7 @@
 import { HTMLAttributes, MouseEvent, Ref, forwardRef } from "react"
 import useSupabase from "../../lib/useSupabase"
 import { useQuery } from '@tanstack/react-query'
-import { image } from '../../lib/utils'
+import { emoji } from '../../lib/utils'
 import tyl from './index.module.css'
 import { Point } from "../Reactor"
 
@@ -94,7 +94,7 @@ export const ReactionDialog = forwardRef(
               data-image={fb.feedbacks.image}
               {...{ onClick }}
             >
-              {image(fb.feedbacks.image)}
+              {emoji(fb.feedbacks.image)}
             </button>
           ))}
         </form>

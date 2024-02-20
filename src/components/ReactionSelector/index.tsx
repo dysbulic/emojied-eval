@@ -4,9 +4,8 @@ import {
 import { forwardRef, useCallback, useEffect, MouseEvent } from 'react';
 import { useQuery } from '@tanstack/react-query'
 import useSupabase from '../../lib/useSupabase'
-import { image } from '../../lib/utils';
+import { emoji } from '../../lib/utils';
 import tyl from './index.module.css'
-import { Reaction } from '../ReactionDialog';
 
 export type Feedback = {
   id: string
@@ -22,7 +21,7 @@ export type FeedbackGroup = {
 
 export type Props = {
   onSelect?: (
-    reaction: Reaction, evt: MouseEvent<HTMLButtonElement>
+    reaction: Feedback, evt: MouseEvent<HTMLButtonElement>
   ) => void
   feedbackGroupIds?: Array<string>
 }
@@ -278,7 +277,7 @@ export const ReactionSelector = (
                           className="reaction"
                           onClick={(evt) => onSelect?.(fb, evt)}
                         >
-                          {image(fb.image)}
+                          {emoji(fb.image)}
                         </button>
                       ))
                     ))}
