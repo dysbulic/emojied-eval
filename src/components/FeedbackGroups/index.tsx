@@ -1,14 +1,17 @@
 import {
   FormEvent, useCallback, useEffect, useRef, useState,
 } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import JSON5 from 'json5';
+import Papa from 'papaparse'
 import useSupabase from '../../lib/useSupabase'
 import { emoji } from '../../lib/utils'
 import FeedbackDialog from '../FeedbackDialog'
 import Header from '../Header'
 import { Feedback } from '../ReactionSelector'
-import tyl from './index.module.css'
 import FeedbackBulkAddDialog from '../FeedbackBulkAddDialog'
+import DisplayDialog from '../DisplayDialog'
+import { useFeedbacks, useGroups, useSelected } from './queries'
+import tyl from './index.module.css'
 
 interface EditFormElements extends HTMLFormControlsCollection {
   group: HTMLSelectElement
@@ -28,65 +31,23 @@ export const FeedbackGroups = () => {
   const [editing, setEditing] = useState<Feedback>()
   const [checks, setChecks] = useState<CheckState>({})
   const bulkDialog = useRef<HTMLDialogElement>(null)
+  const displayDialog = useRef<HTMLDialogElement>(null)
+  const [output, setOutput] = useState<string>()
   const { supabase } = useSupabase()
   const {
     data: feedbacks,
     isLoading: loadingFeedbacks,
     refetch: refetchFeedbacks,
-  } = useQuery({
-    queryKey: ['FeedbackGroups', 'feedbacks', { supabase }],
-    queryFn: async () => {
-      if(!supabase) throw new Error('No `supabase` defined.')
-      const { data } = (
-        await supabase.from('feedbacks').select()
-      )
-      return data
-    },
-    enabled: !!supabase,
-  })
+  } = useFeedbacks(supabase)
   const {
     data: groups,
     isLoading: loadingGroups,
     refetch: refetchGroups,
-  } = useQuery({
-    queryKey: ['FeedbackGroups', 'groups', { supabase }],
-    queryFn: async () => {
-      if(!supabase) throw new Error('No `supabase` defined.')
-      const { data } = (
-        await supabase.from('feedback_groups')
-        .select()
-        .order('title')
-      )
-      return data
-    },
-    enabled: !!supabase,
-  })
+  } = useGroups(supabase)
   const {
     data: selected,
     isLoading: loadingSelected,
-  } = useQuery({
-    queryKey: ['FeedbackGroups', 'selected', { uuid, supabase }],
-    queryFn: async () => {
-      if(!supabase) throw new Error('No `supabase` defined.')
-      if(!uuid) return new Set<string>()
-      const { data } = (
-        await supabase.from('feedbacks_groups')
-        .select(`
-          feedbacks (id)
-        `)
-        .eq('group_id', uuid)
-      )
-      return new Set(data?.map(
-        ({ feedbacks }) => Array.isArray(feedbacks) ? (
-          feedbacks.map(({ id }) => id)
-        ) : (
-          (feedbacks as { id: string }).id
-        )
-      ).flat())
-    },
-    enabled: !!supabase && uuid != null,
-    initialData: new Set<string>(),
-  })
+  } = useSelected(supabase, uuid)
   useEffect(() => {
     if(selected) {
       setChecks(() => {
@@ -225,17 +186,22 @@ export const FeedbackGroups = () => {
           <button
             type="button"
             onClick={() => {
-              bulkDialog.current?.showModal()
+              displayDialog.current?.showModal()
+              setOutput(JSON5.stringify(groups, null, 2))
             }}
           >Export as JSON5</button>
           <button
             type="button"
             onClick={() => {
-              bulkDialog.current?.showModal()
+              displayDialog.current?.showModal()
+              setOutput(Papa.unparse([{test: 'pne'}, {test: 'two'}], { header: true }))
             }}
           >Export as CSV</button>
         </form>
       )}
+      <DisplayDialog ref={displayDialog}>
+        <pre>{output}</pre>
+      </DisplayDialog>
       <form onSubmit={onNewGroup} id={tyl.new}>
         {loadingFeedbacks || (!!uuid && loadingSelected) ? (
           <p>Loading…</p>

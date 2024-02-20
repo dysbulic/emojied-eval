@@ -1,3 +1,5 @@
+/* eslint-disable no-fallthrough */
+
 import { MouseEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import toast, { Toaster } from 'react-hot-toast'
@@ -144,7 +146,7 @@ export const Reactor = () => {
       // eslint-disable-next-line no-fallthrough
       case '9': {
         rate = 20
-        
+
         video.current.playbackRate = rate
         toast(`Playback ⨯${rate}`)
         break
