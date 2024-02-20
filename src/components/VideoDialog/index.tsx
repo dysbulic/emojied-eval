@@ -1,5 +1,6 @@
 import {
-  FormEvent, useCallback, useEffect, useRef, forwardRef, ForwardedRef
+  type FormEvent, useCallback, useEffect, useRef,
+  forwardRef, type ForwardedRef,
 } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useSupabase } from '../../lib/useSupabase'
@@ -48,17 +49,33 @@ export const VideoDialog = forwardRef(
         url: elements.url.value,
         title: elements.title.value,
         description: elements.description.value,
-        feedback_group_id: elements.group.value || undefined,
       }
       const videoElem = document.createElement('video') as HTMLVideoElement
-      values.duration = await new Promise<number>((resolve) => {
+      values.duration = await new Promise<Maybe<string>>((resolve) => {
         videoElem.addEventListener('loadedmetadata', () => {
-          resolve(videoElem.duration)
+          resolve(
+            new Date(videoElem.duration * 1000)
+            .toISOString()
+            .split('T').at(-1)
+            ?.replace(/\w$/g, '') ?? null
+          )
         } )
         videoElem.src = values.url
       })
       console.log({ values })
-      await supabase.from('videos').upsert(values)
+      const { data: vid, error } = (
+        await supabase.from('videos')
+        .upsert(values)
+        .select('id')
+        .single()
+      ) ?? {}
+      if(error) throw error
+      console.debug({ vid })
+      await supabase.from('feedback_groups_videos')
+      .upsert({
+        video_id: vid.id,
+        group_id: elements.group.value,
+      })
       close()
     }
 
@@ -90,13 +107,17 @@ export const VideoDialog = forwardRef(
         >
           <label>
             <h3>URL</h3>
-            <input id="url" defaultValue={video?.url} required/>
+            <input
+              id="url"
+              defaultValue={video?.url ?? ''}
+              required
+            />
           </label>
           <label>
             <h3>Title</h3>
             <input
               id="title"
-              defaultValue={video?.title}
+              defaultValue={video?.title ?? ''}
               required
             />
           </label>
@@ -111,13 +132,15 @@ export const VideoDialog = forwardRef(
           <label>
             <h3 className={tyl.split}>Feedback Group</h3>
             {loading ? <p>Loading…</p> : (
-              <select id="group" defaultValue={video?.feedback_group_id}>
+              <select
+                id="group"
+                // defaultValue={video?.feedback_group_id}
+              >
                 <option value="" className={tyl.noneOption}>None</option>
                 {groups?.map((group) => (
                   <option
                     key={group.id}
                     value={group.id}
-                    selected={group.id === video?.feedback_group_id}
                   >{group.title}</option>
                 ))}
               </select>

@@ -1,10 +1,10 @@
 import { useCallback, useRef, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import { useSupabase } from '../../lib/useSupabase'
 import Header from '../Header'
 import VideoDialog from '../VideoDialog'
 import { Link } from 'react-router-dom'
 import tyl from './index.module.css'
+import { useVideos } from './queries'
 
 export type Video = {
   id?: string
@@ -12,33 +12,22 @@ export type Video = {
   title: string
   description: string
   feedback_group_id?: string
-  duration?: number
+  duration?: Maybe<string>
 }
+type Maybe<T> = T | null | undefined
 
 export const Videos = () => {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { supabase, error: supaError } = useSupabase()
   const {
     isLoading: loading, error: queryError, data: videos, refetch
-  } = useQuery({
-    queryKey: ['Videos', { supabase }],
-    enabled: !!supabase,
-    queryFn: async () => {
-      const { data, error } = (
-        await supabase?.from('videos').select()
-      ) ?? {}
-      if(error) throw error 
-      return data
-    }
-  })
+  } = useVideos(supabase)
   const [video, setVideo] = useState(null)
 
   const addClick = async () => {
-    console.debug('Trying to open dialog…')
     dialogRef.current?.showModal()
   }
   const onClose = useCallback(() => {
-    console.debug('Closing dialog…')
     setVideo(null)
     refetch()
   }, [refetch])
@@ -73,9 +62,9 @@ export const Videos = () => {
           <ol>
             {videos?.map((vid) => (
               <li key={vid.id}>
-                <h2><a href={`eval/${vid.id}`}>
+                <h2><Link to={`/eval/${vid.id}`}>
                   {vid.title}
-                </a></h2>
+                </Link></h2>
                 <div>{vid.description}</div>
                 <nav>
                   <button onClick={() => edit(vid.id)}>🖉</button>

@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS videos (
   url text NOT NULL,
   creator_id uuid DEFAULT auth.uid() NOT NULL,
   slug text,
+  duration time NOT NULL,
   recorded_at timestamp with time zone,
   title text NOT NULL,
   description text,

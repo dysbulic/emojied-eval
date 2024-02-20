@@ -90,7 +90,7 @@ export const WeightedReactions = (
                   name: rubric,
                   default_weight: 1,
                 })
-                .single()
+                .single() ?? {}
               )
               setRubric(newRubric)
             }}
