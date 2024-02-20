@@ -8,6 +8,7 @@ import FeedbackDialog from '../FeedbackDialog'
 import Header from '../Header'
 import { Feedback } from '../ReactionSelector'
 import tyl from './index.module.css'
+import FeedbackBulkAddDialog from '../FeedbackBulkAddDialog'
 
 interface EditFormElements extends HTMLFormControlsCollection {
   group: HTMLSelectElement
@@ -26,6 +27,7 @@ export const FeedbackGroups = () => {
   const [uuidHold, setUUIDHold] = useState<string>()
   const [editing, setEditing] = useState<Feedback>()
   const [checks, setChecks] = useState<CheckState>({})
+  const bulkDialog = useRef<HTMLDialogElement>(null)
   const { supabase } = useSupabase()
   const {
     data: feedbacks,
@@ -192,6 +194,10 @@ export const FeedbackGroups = () => {
         feedback={editing}
         {...{ onClose }}
       />
+      <FeedbackBulkAddDialog
+        ref={bulkDialog}
+        {...{ onClose }}
+      />
       {loadingGroups ? <p>Loading…</p> : (
         <form onSubmit={onGroupEdit} id={tyl.edit}>
           <select
@@ -210,6 +216,12 @@ export const FeedbackGroups = () => {
             ))}
           </select>
           <button>Edit Group</button>
+          <button
+            type="button"
+            onClick={() => {
+              bulkDialog.current?.showModal()
+            }}
+          >Bulk Add Groups</button>
         </form>
       )}
       <form onSubmit={onNewGroup} id={tyl.new}>

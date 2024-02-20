@@ -1,0 +1,16 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  & textarea {
+    width: min(100dvw, 85ex);
+    height: min(50dvh, 15ch);
+  }
+
+  #instructions {
+    display: flex;
+    gap: 1em;
+  }
+}
