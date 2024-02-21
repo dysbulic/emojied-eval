@@ -17,12 +17,12 @@ export const WeightedReactions = (
 ) => {
   const counts = useMemo(() => {
     const counts: Record<string, number> = {}
-    video.reactions.forEach(({ feedback_id }) => {
+    video?.reactions.forEach(({ feedback_id }) => {
       counts[feedback_id] ??= 0
       counts[feedback_id]++
     })
     return counts
-  }, [video.reactions])
+  }, [video?.reactions])
   const [rubric, setRubric] = useState<Maybe<Rubric>>()
   const [weights, setWeights] = (
     useState<Record<string, number | string>>({})
@@ -36,10 +36,10 @@ export const WeightedReactions = (
     supabase, Object.keys(counts),
   )
   const { data: rubrics } = useRubrics(
-    supabase, video.feedback_group_id,
+    supabase, video?.feedback_group_id,
   )
   const { data: defaultWeights } = useWeights(
-    supabase, video.feedback_group_id,
+    supabase, video?.feedback_group_id,
   )
   useEffect(() => {
     if(defaultWeights) setWeights(defaultWeights)
@@ -82,17 +82,21 @@ export const WeightedReactions = (
           <button
             type="button"
             onClick={async () => {
-              const { data: newRubric } = (
-                await supabase
-                .from('rubrics')
-                .insert({
-                  feedback_group_id: video.feedback_group_id,
-                  name: rubric,
-                  default_weight: 1,
-                })
-                .single() ?? {}
-              )
-              setRubric(newRubric)
+              if(video) {
+                const { data: newRubric } = (
+                  await supabase
+                  .from('rubrics')
+                  .insert({
+                    feedback_group_id: (
+                      video.feedback_group_id
+                    ),
+                    name: rubric,
+                    default_weight: 1,
+                  })
+                  .single() ?? {}
+                )
+                setRubric(newRubric)
+              }
             }}
           >⤟🗃 Add a Rubric</button>
           {rubric && (

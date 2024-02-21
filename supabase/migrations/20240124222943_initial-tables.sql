@@ -2,13 +2,13 @@ CREATE TABLE IF NOT EXISTS videos (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
   created_at timestamp with time zone DEFAULT now() NOT NULL,
   updated_at timestamp with time zone DEFAULT now() NOT NULL,
+  title text NOT NULL,
+  description text,
   url text NOT NULL,
   creator_id uuid DEFAULT auth.uid() NOT NULL,
   slug text,
   duration time NOT NULL,
   recorded_at timestamp with time zone,
-  title text NOT NULL,
-  description text,
 
   CONSTRAINT videos_creator_id_fkey FOREIGN KEY (creator_id)
     REFERENCES auth.users(id) MATCH SIMPLE
@@ -20,10 +20,10 @@ CREATE TABLE IF NOT EXISTS feedbacks (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
   created_at timestamp with time zone DEFAULT now() NOT NULL,
   updated_at timestamp with time zone DEFAULT now() NOT NULL,
-  creator_id uuid DEFAULT auth.uid() NOT NULL,
   image text NOT NULL,
   name text NOT NULL,
   description text,
+  creator_id uuid DEFAULT auth.uid() NOT NULL,
 
   CONSTRAINT feedbacks_creator_id_fkey FOREIGN KEY (creator_id)
     REFERENCES auth.users(id) MATCH SIMPLE
@@ -47,12 +47,10 @@ CREATE TABLE IF NOT EXISTS reactions (
     REFERENCES videos(id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE SET NULL,
-
   CONSTRAINT reactions_reactor_id_fkey FOREIGN KEY (reactor_id)
     REFERENCES auth.users(id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE SET NULL,
-
   CONSTRAINT reactions_feedback_id_fkey FOREIGN KEY (feedback_id)
     REFERENCES feedbacks(id) MATCH SIMPLE
     ON UPDATE CASCADE
@@ -72,7 +70,6 @@ CREATE TABLE IF NOT EXISTS evaluations (
     REFERENCES feedbacks(id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE SET NULL,
-
   CONSTRAINT evaluations_creator_id_fkey FOREIGN KEY (creator_id)
     REFERENCES auth.users(id) MATCH SIMPLE
     ON UPDATE CASCADE

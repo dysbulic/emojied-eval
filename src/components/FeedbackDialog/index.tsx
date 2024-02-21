@@ -36,11 +36,13 @@ export const FeedbackDialog = forwardRef<HTMLDialogElement, Props>(
     }, [feedback])
 
     const close = () => {
+      setName(undefined)
+      setImage(undefined)
+      setDescription(undefined)
       onClose?.()
       if(!(ref instanceof Function)) {
         ref?.current?.close()
       }
-      form.current?.reset()
     }
     const onSubmit = async (evt: FormEvent<HTMLFormElement>) => {
       if(!supabase) throw new Error('Supabase not defined.')

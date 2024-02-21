@@ -25,22 +25,24 @@ export const Score = () => {
     queryFn: async () => {
       if(!supabase) throw new Error('`supabase` not available.')
       const { data } = (
-        await supabase.from('videos')
+        await supabase.from('reactions')
         .select(`
-          id, title, feedback_group_id,
-          reactions (*)
+          *,
+          feedbacks(*),
+          videos (*)
         `)
-        .eq('id', videoId)
+        .eq('video_id', videoId)
         .single()
       )
       return data                                                                                        
     },
     enabled: !!supabase
   })
+  console.debug({ video })
   return (
     (loading ? <p>Loading…</p> : (
       <article>
-        <h1>Scoring: <q>{video?.title}</q></h1>
+        <h1>Scoring: <q>{video.title}</q></h1>
         <WeightedReactions video={video as ReactedVideo}/>
       </article>
     ))

@@ -66,15 +66,13 @@ export const FeedbackBulkAddDialog = forwardRef<HTMLDialogElement, Props>(
                 title="Comma Separated Values"
               >headered CSV</Link>.
             </p>
-            <p>
-              The headers / keys are:
-              <ul>
-                <li><code>image-url</code></li>
-                <li><code>name</code></li>
-                <li><code>feedback-group-ids</code></li>
-                <li><code>description</code></li>
-              </ul>
-            </p>
+            <p>The headers / keys are:</p>
+            <ul>
+              <li><code>image-url</code></li>
+              <li><code>name</code></li>
+              <li><code>feedback-group-ids</code></li>
+              <li><code>description</code></li>
+            </ul>
           </aside>
           <textarea
             id="text"
