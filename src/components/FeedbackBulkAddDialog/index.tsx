@@ -68,26 +68,25 @@ export const FeedbackBulkAddDialog = forwardRef<HTMLDialogElement, Props>(
             </p>
             <p>The headers / keys are:</p>
             <ul>
-              <li><code>image-url</code></li>
+              <li><code>image</code> <em>(may be a URL or emoji)</em></li>
               <li><code>name</code></li>
-              <li><code>feedback-group-ids</code></li>
               <li><code>description</code></li>
             </ul>
           </aside>
           <textarea
             id="text"
-            placeholder={`image-url, name, feedback-group-ids, description
-https://code.trwb.live/logo.svg, Swirling Mobster, , ¡Mama Mia!: ¡Look at it!
-https://trwb.live/logo.svg, The Big T, , "It's a bigun!"
+            placeholder={`image, name, description
+https://code.trwb.live/logo.svg, Swirling Mobster, ¡Mama Mia!: ¡Look at it!
+https://trwb.live/logo.svg, The Big T, "It's a bigun!"
                        or
 [
   {
-    imageUrl: 'https://code.trwb.live/logo.svg',
+    image: 'https://code.trwb.live/logo.svg',
     name: 'Swirling Mobster',
     description: '¡Mama Mia!: ¡Look at it!',
   },
   {
-    imageUrl: 'https://trwb.live/logo.svg',
+    image: 'https://trwb.live/logo.svg',
     name: 'The Big T',
     description: "It's a bigun!",
   },

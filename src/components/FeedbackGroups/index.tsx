@@ -12,6 +12,7 @@ import FeedbackBulkAddDialog from '../FeedbackBulkAddDialog'
 import DisplayDialog from '../DisplayDialog'
 import { useFeedbacks, useGroups, useSelected } from './queries'
 import tyl from './index.module.css'
+import formtyl from '../../styles/form.module.css'
 
 interface EditFormElements extends HTMLFormControlsCollection {
   group: HTMLSelectElement
@@ -68,6 +69,13 @@ export const FeedbackGroups = () => {
   const editClick = (feedback: Feedback) => {
     setEditing(feedback)
     addDialog.current?.showModal()
+  }
+  const deleteClick = async (feedback: Feedback) => {
+    await supabase.from('feedbacks')
+    .delete()
+    .eq('id', feedback.id)
+
+    refetchFeedbacks()
   }
   const onClose = useCallback(() => {
     refetchFeedbacks()
@@ -144,6 +152,8 @@ export const FeedbackGroups = () => {
     refetchGroups()
   }
 
+  console.debug({ groups })
+
   return (
     <section>
       <Header>
@@ -186,15 +196,25 @@ export const FeedbackGroups = () => {
           <button
             type="button"
             onClick={() => {
+              const fbs = feedbacks?.map(
+                ({ image, name, description }) => ({
+                  image, name, description,
+                })
+              )
+              setOutput(JSON5.stringify(fbs, null, 2))
               displayDialog.current?.showModal()
-              setOutput(JSON5.stringify(groups, null, 2))
             }}
           >Export as JSON5</button>
           <button
             type="button"
             onClick={() => {
+              const fbs = feedbacks?.map(
+                ({ image, name, description }) => ({
+                  image, name, description,
+                })
+              ) ?? []
+              setOutput(Papa.unparse(fbs, { header: true }))
               displayDialog.current?.showModal()
-              setOutput(Papa.unparse([{test: 'pne'}, {test: 'two'}], { header: true }))
             }}
           >Export as CSV</button>
         </form>
@@ -224,10 +244,16 @@ export const FeedbackGroups = () => {
                 {emoji(feedback.image)}
                 <h2>{feedback.name}</h2>
                 <div className={tyl.center}>{feedback.description}</div>
-                <button
-                  type="button"
-                  onClick={() => editClick(feedback)}
-                >🖉</button>
+                <nav className={formtyl.options}>
+                  <button
+                    type="button"
+                    onClick={() => editClick(feedback)}
+                  >🖉</button>
+                  <button
+                    type="button"
+                    onClick={() => deleteClick(feedback)}
+                  >➖</button>
+                </nav>
               </label>
             ))}
           </>

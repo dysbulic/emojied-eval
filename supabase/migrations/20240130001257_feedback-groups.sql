@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS feedback_groups (
   CONSTRAINT feedback_groups_creator_id_fkey FOREIGN KEY (creator_id)
     REFERENCES auth.users(id) MATCH SIMPLE
     ON UPDATE CASCADE
-    ON DELETE SET NULL
+    ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS feedbacks_groups (
@@ -23,15 +23,15 @@ CREATE TABLE IF NOT EXISTS feedbacks_groups (
   CONSTRAINT feedbacks_groups_creator_id_fkey FOREIGN KEY (creator_id)
     REFERENCES auth.users(id) MATCH SIMPLE
     ON UPDATE CASCADE
-    ON DELETE SET NULL,
+    ON DELETE CASCADE,
   CONSTRAINT feedbacks_groups_group_id_fkey FOREIGN KEY (group_id)
     REFERENCES feedback_groups(id) MATCH SIMPLE
     ON UPDATE CASCADE
-    ON DELETE SET NULL,
+    ON DELETE CASCADE,
   CONSTRAINT feedbacks_groups_feedback_id_fkey FOREIGN KEY (feedback_id)
     REFERENCES feedbacks(id) MATCH SIMPLE
     ON UPDATE CASCADE
-    ON DELETE SET NULL
+    ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS feedback_groups_videos (
@@ -45,14 +45,14 @@ CREATE TABLE IF NOT EXISTS feedback_groups_videos (
   CONSTRAINT feedback_groups_videos_creator_id_fkey FOREIGN KEY (creator_id)
     REFERENCES auth.users(id) MATCH SIMPLE
     ON UPDATE CASCADE
-    ON DELETE SET NULL,
+    ON DELETE CASCADE,
   CONSTRAINT feedback_groups_videos_group_id_fkey FOREIGN KEY (group_id)
     REFERENCES auth.users(id) MATCH SIMPLE
     ON UPDATE CASCADE
-    ON DELETE SET NULL,
+    ON DELETE CASCADE,
   CONSTRAINT feedback_groups_videos_video_id_fkey FOREIGN KEY (video_id)
     REFERENCES videos(id) MATCH SIMPLE
     ON UPDATE CASCADE
-    ON DELETE SET NULL,
+    ON DELETE CASCADE,
   UNIQUE(group_id, video_id)
 );

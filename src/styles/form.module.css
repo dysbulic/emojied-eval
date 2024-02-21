@@ -47,6 +47,8 @@
 
 & .buttons {
   display: flex;
+  width: 100%;
+  grid-column: 1 / -1;
  
   & button {
     flex: 1;
@@ -64,3 +66,23 @@
     }
   }
 }
+
+.options {
+  & button, & a {
+    aspect-ratio: 1;
+    font-size: 1.25rem;
+    border-radius: 0.5rem;
+    margin-inline: 0.5rem;
+    padding: 0.5rem;
+    line-height: 1.5rem;
+    background-color: var(--button-bg);
+    color: var(--button-fg);
+    border: 2px solid var(--button-border);
+    font-weight: bold;
+
+    &:hover {
+      filter: brightness(1.5);
+    }
+  }
+}
+

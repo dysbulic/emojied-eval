@@ -1,4 +1,5 @@
-import { ReactNode, Ref, forwardRef } from "react"
+import { ReactNode, Ref, forwardRef } from 'react'
+import formtyl from '../../styles/form.module.css'
 
 export const DisplayDialog = forwardRef(
   (
@@ -8,6 +9,9 @@ export const DisplayDialog = forwardRef(
     return (
       <dialog ref={dialog}>
         {children}
+        <form method="dialog" className={formtyl.buttons}>
+          <button>Close</button>
+        </form>
       </dialog>
     )
   }

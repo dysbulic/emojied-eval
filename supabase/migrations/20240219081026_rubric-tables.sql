@@ -10,11 +10,11 @@ CREATE TABLE IF NOT EXISTS rubrics (
   CONSTRAINT rubrics_feedback_group_id_fkey FOREIGN KEY (feedback_group_id)
     REFERENCES feedback_groups (id) MATCH SIMPLE
     ON UPDATE CASCADE
-    ON DELETE SET NULL,
+    ON DELETE CASCADE,
   CONSTRAINT rubrics_creator_id_fkey FOREIGN KEY (creator_id)
     REFERENCES auth.users (id) MATCH SIMPLE
     ON UPDATE CASCADE
-    ON DELETE SET NULL
+    ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS feedbacks_weights (

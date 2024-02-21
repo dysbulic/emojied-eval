@@ -76,6 +76,7 @@
   justify-content: center;
   align-items: center;
   gap: 1rem;
+  margin-bottom: 2rem;
 
   & select, & button {
     font-size: 1.75rem;

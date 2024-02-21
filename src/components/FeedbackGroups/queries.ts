@@ -23,7 +23,10 @@ export const useGroups = (supabase: SupabaseClient) => (
     queryFn: async () => {
       const { data } = (
         await supabase.from('feedback_groups')
-        .select()
+        .select(`
+          *,
+          feedbacks_groups (*)
+        `)
         .order('title')
       )
       return data

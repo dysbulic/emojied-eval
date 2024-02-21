@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS videos (
   CONSTRAINT videos_creator_id_fkey FOREIGN KEY (creator_id)
     REFERENCES auth.users(id) MATCH SIMPLE
     ON UPDATE CASCADE
-    ON DELETE SET NULL
+    ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS feedbacks (
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS feedbacks (
   CONSTRAINT feedbacks_creator_id_fkey FOREIGN KEY (creator_id)
     REFERENCES auth.users(id) MATCH SIMPLE
     ON UPDATE CASCADE
-    ON DELETE SET NULL
+    ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS reactions (
@@ -46,15 +46,15 @@ CREATE TABLE IF NOT EXISTS reactions (
   CONSTRAINT reactions_video_id_fkey FOREIGN KEY (video_id)
     REFERENCES videos(id) MATCH SIMPLE
     ON UPDATE CASCADE
-    ON DELETE SET NULL,
+    ON DELETE CASCADE,
   CONSTRAINT reactions_reactor_id_fkey FOREIGN KEY (reactor_id)
     REFERENCES auth.users(id) MATCH SIMPLE
     ON UPDATE CASCADE
-    ON DELETE SET NULL,
+    ON DELETE CASCADE,
   CONSTRAINT reactions_feedback_id_fkey FOREIGN KEY (feedback_id)
     REFERENCES feedbacks(id) MATCH SIMPLE
     ON UPDATE CASCADE
-    ON DELETE SET NULL
+    ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS evaluations (
@@ -69,9 +69,9 @@ CREATE TABLE IF NOT EXISTS evaluations (
   CONSTRAINT evaluations_feedback_id_fkey FOREIGN KEY (feedback_id)
     REFERENCES feedbacks(id) MATCH SIMPLE
     ON UPDATE CASCADE
-    ON DELETE SET NULL,
+    ON DELETE CASCADE,
   CONSTRAINT evaluations_creator_id_fkey FOREIGN KEY (creator_id)
     REFERENCES auth.users(id) MATCH SIMPLE
     ON UPDATE CASCADE
-    ON DELETE SET NULL
+    ON DELETE CASCADE
 );
