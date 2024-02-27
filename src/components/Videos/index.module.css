@@ -3,6 +3,12 @@
   place-content: space-between;
 }
 
+.none {
+  display: grid;
+  place-items: center;
+  margin-top: 15dvh;
+}
+
 .olTable {
   & ol {
     display: grid;

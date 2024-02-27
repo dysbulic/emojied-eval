@@ -1,0 +1,34 @@
+#rubrics {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.table {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  & li {
+    &, & label {
+      display: contents;
+    }
+
+    & > * {
+      align-self: center;
+      justify-self: center;
+
+      &:hover {
+        background-color: var(--hover-bg);
+      }
+    }
+
+    & h2 {
+      margin: 0;
+    }
+  }
+}
+
+.load {
+  max-width: min(100%, 55ch);
+}
+

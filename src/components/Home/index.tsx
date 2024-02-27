@@ -32,8 +32,9 @@ export const Home = () => {
         <main>
           <nav>
             <ul id={tyl.mainnav}>
-              <li><Link to="/videos">Videos</Link></li>
               <li><Link to="/reactions">Reactions</Link></li>
+              <li><Link to="/rubrics">Rubrics</Link></li>
+              <li><Link to="/videos">Videos</Link></li>
               <li><Link to="/config">Configure</Link></li>
               <li><Link to="/selector">Reaction Selector</Link></li>
             </ul>

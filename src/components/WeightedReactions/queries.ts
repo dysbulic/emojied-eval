@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { SupabaseClient } from '@supabase/supabase-js'
+import { Rubric } from '.'
 
 type Maybe<T> = T | null | undefined
 
@@ -7,6 +8,7 @@ export const useFeedbacksIn = (
   supabase: SupabaseClient, ids: Array<string>
 ) => {
   return useQuery({
+    enabled: !!supabase,
     queryKey: ['feedbacks', ids, supabase],
     queryFn: async () => {
       const { data, error } = (
@@ -19,55 +21,47 @@ export const useFeedbacksIn = (
         data.map(({ id, image }) => [id, image])
       )
     },
-    enabled: !!supabase,
   })
 }
 
 export const useRubrics = (
-  supabase: SupabaseClient, feedback_group_id?: Maybe<string>
+  supabase: SupabaseClient
 ) => {
  return (
   useQuery({
-    queryKey: [
-      'rubrics', feedback_group_id, supabase
-    ],
+    enabled: !!supabase,
+    queryKey: ['rubrics', supabase],
     queryFn: async () => {
-      let query = (
-        supabase.from('rubrics')
+      const { data, error } = (
+        await supabase.from('rubrics')
         .select('id, name, default_weight')
       )
-      if(feedback_group_id) {
-        query = (
-          query
-          .eq('feedback_group_id', feedback_group_id)
-        )
-      }
-      const { data, error } = await query
       if(error) throw error
       return data
     },
-    enabled: !!supabase,
   })
  )
 }
 
 export const useWeights = (
-  supabase: SupabaseClient, rubric_id?: Maybe<string>
+  supabase: SupabaseClient,
+  rubric?: Maybe<Rubric>,
+  feedback_ids?: Array<string>,
 ) => useQuery({
+  enabled: !!supabase,
   queryKey: [
-    'rubrics', rubric_id, supabase
+    'rubrics', rubric?.id, feedback_ids, supabase
   ],
   queryFn: async () => {
     if(!supabase) throw new Error('`supabase` not available.')
+    if(!rubric) return {}
     let query = (
-      supabase.from('feedback_weights')
+      supabase.from('feedbacks_weights')
       .select('feedback_id, weight')
+      .eq('rubric_id', rubric.id)
     )
-    if(rubric_id) {
-      query = (
-        query
-        .eq('rubric_id', rubric_id)
-      )
+    if(feedback_ids && feedback_ids.length > 0) {
+      query = query.in('feedback_id', feedback_ids)
     }
     const { data, error } = await query
     if(error) throw error
@@ -77,5 +71,4 @@ export const useWeights = (
       ))
     )
   },
-  enabled: !!supabase,
 })

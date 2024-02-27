@@ -17,7 +17,7 @@ export type Props = {
   className?: string
 }
 
-export type Maybe<T> = T | undefined
+export type Maybe<T> = T | undefined | null
 
 export const FeedbackBulkAddDialog = forwardRef<HTMLDialogElement, Props>(
   ({ feedback, onClose, className }, dialog) => {
@@ -41,6 +41,7 @@ export const FeedbackBulkAddDialog = forwardRef<HTMLDialogElement, Props>(
       ) : (
         Papa.parse(text, { header: true }).data
       ))
+      console.debug({ values })
       await supabase.from('feedbacks').upsert(values)
       close()
     }
@@ -58,11 +59,11 @@ export const FeedbackBulkAddDialog = forwardRef<HTMLDialogElement, Props>(
             <p>
               Format may either be{' '}
               <Link
-                to=""
+                to="https://json5.org"
                 title="JavaScript Object Notation v5"
               >JSON5 Array</Link>, or{' '}
               <Link
-                to=""
+                to="https://en.wikipedia.org/wiki/Comma-separated_values"
                 title="Comma Separated Values"
               >headered CSV</Link>.
             </p>
@@ -75,13 +76,13 @@ export const FeedbackBulkAddDialog = forwardRef<HTMLDialogElement, Props>(
           </aside>
           <textarea
             id="text"
-            placeholder={`image, name, description
-https://code.trwb.live/logo.svg, Swirling Mobster, ¡Mama Mia!: ¡Look at it!
-https://trwb.live/logo.svg, The Big T, "It's a bigun!"
+            placeholder={`image,name,description
+https://code.trwb.live/logo.svg,Swirling Mobster,¡Mama Mia!: ¡Look at it!
+https://trwb.live/logo.svg,The Big T,"It's a bigun!"
                        or
 [
   {
-    image: 'https://code.trwb.live/logo.svg',
+    image: 'https://code.trwb.live/logo.svg ',
     name: 'Swirling Mobster',
     description: '¡Mama Mia!: ¡Look at it!',
   },

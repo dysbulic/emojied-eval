@@ -24,6 +24,8 @@
   --button-focus-fg: #EBC500;
   --button-hover-bg: #B26300;
   --button-hover-fg: #1AFFCC;
+  --button-disabled-fg: #27253755;
+  --button-disabled-bg: #A28276;
 
   & button:focus {
     --button-bg: var(--button-focus-bg);
@@ -32,6 +34,10 @@
   & button:hover {
     --button-bg: var(--button-hover-bg);
     --button-fg: var(--button-hover-fg);
+  }
+  & button[disabled] {
+    --button-bg: var(--button-disabled-bg);
+    --button-fg: var(--button-disabled-fg);
   }
 }
 

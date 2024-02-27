@@ -1,6 +1,6 @@
 import {
   type FormEvent, useCallback, useEffect, useRef,
-  forwardRef, type ForwardedRef,
+  forwardRef, type ForwardedRef, useState,
 } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useSupabase } from '../../lib/useSupabase'
@@ -24,6 +24,7 @@ export const VideoDialog = forwardRef(
   ) => {
     const { supabase } = useSupabase()
     const form = useRef<HTMLFormElement>(null)
+    const [fbGroup, setFbGroup] = useState<Maybe<string>>()
     const close = useCallback(() => {
       form.current?.reset()
       if(!(dialog instanceof Function)) {
@@ -69,11 +70,19 @@ export const VideoDialog = forwardRef(
         .single()
       ) ?? {}
       if(error) throw error
+      const fb_group = elements.group.value
+
       await supabase.from('feedback_groups_videos')
-      .upsert({
-        video_id: vid.id,
-        group_id: elements.group.value,
-      })
+      .delete()
+      .eq('video_id', vid.id)
+
+      if(fb_group) {
+        await supabase.from('feedback_groups_videos')
+        .upsert({
+          video_id: vid.id,
+          group_id: fb_group,
+        })
+      }
       close()
     }
 
@@ -91,6 +100,12 @@ export const VideoDialog = forwardRef(
       }
     })
     if(queryError) throw queryError
+
+    const fbg = video?.feedback_groups?.[0]?.id
+    useEffect(() => {
+      console.debug({ fbg })
+      setFbGroup(fbg)
+    }, [fbg])
 
     return (
       <dialog
@@ -132,7 +147,10 @@ export const VideoDialog = forwardRef(
             {loading ? <p>Loading…</p> : (
               <select
                 id="group"
-                // defaultValue={video?.feedback_group_id}
+                value={fbGroup ?? ''}
+                onChange={({ currentTarget: { value } }) => (
+                  setFbGroup(value)
+                )}
               >
                 <option value="" className={tyl.noneOption}>None</option>
                 {groups?.map((group) => (

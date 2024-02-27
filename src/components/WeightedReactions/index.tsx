@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { ReactedVideo } from '../Score'
 import useSupabase from '../../lib/useSupabase'
 import { emoji } from '../../lib/utils'
-import tyl from './index.module.css'
 import { useFeedbacksIn, useRubrics, useWeights } from './queries'
+import tyl from './index.module.css'
+import formtyl from '../../styles/form.module.css'
 
 type Maybe<T> = T | null | undefined
 export type Rubric = {
@@ -27,19 +29,13 @@ export const WeightedReactions = (
   const [weights, setWeights] = (
     useState<Record<string, number | string>>({})
   )
-  const [rubricHold, setRubricHold] = (
-    useState<Maybe<string>>()
-  )
   const { supabase } = useSupabase()
-
   const { data: feedbacks } = useFeedbacksIn(
     supabase, Object.keys(counts),
   )
-  const { data: rubrics } = useRubrics(
-    supabase, video?.feedback_group_id,
-  )
+  const { data: rubrics } = useRubrics(supabase)
   const { data: defaultWeights } = useWeights(
-    supabase, video?.feedback_group_id,
+    supabase, rubric, Object.keys(counts),
   )
   useEffect(() => {
     if(defaultWeights) setWeights(defaultWeights)
@@ -48,68 +44,31 @@ export const WeightedReactions = (
   return (
     <section id={tyl.reactions}>
       <h2>Weighted Reactions</h2>
-      <form
-        className={tyl['use-rubric']}
-        onSubmit={() => {
-          setRubric(rubrics?.find((
-            { id }: { id: string }
-          ) => (
-            id === rubricHold
-          )))
-        }}
-      >
-        <input
-          id="rubric"
-          onChange={({ target: { value } }) => (
-            setRubricHold(value)
-          )}
-          value={rubricHold ?? ''}
-          list="rubrics"
-        />
-        <datalist id="rubrics">
-          <option value="">Choose a Rubric…</option>
-          {rubrics?.map(
-            ({ id, name }: { id: string, name: string }) => (
-              <option key={id} value={id}>{name}</option>
-            )
-          )}
-        </datalist>
-        <nav>
-          {rubrics && rubrics?.length > 0 && (
-            <button
-            >⤟💾 Load a Rubric</button>
-          )}
-          <button
-            type="button"
-            onClick={async () => {
-              if(video) {
-                const { data: newRubric } = (
-                  await supabase
-                  .from('rubrics')
-                  .insert({
-                    feedback_group_id: (
-                      video.feedback_group_id
-                    ),
-                    name: rubric,
-                    default_weight: 1,
-                  })
-                  .single() ?? {}
-                )
-                setRubric(newRubric)
-              }
+      {!rubrics || rubrics.length === 0 ? (
+        <Link to="/rubrics">Create a Rubric</Link>
+      ) : (
+        <form
+          className={`${tyl['use-rubric']} ${formtyl.buttons}`}
+        >
+          <select
+            value={rubric?.id}
+            onChange={({ target: { value } }) => {
+              setRubric(rubrics?.find((
+                { id }: { id: string }
+              ) => (
+                id === value
+              )))
             }}
-          >⤟🗃 Add a Rubric</button>
-          {rubric && (
-            <button
-              type="button"
-              onClick={() => {
-                setWeights({})
-                setRubric(null)
-              }}
-            >⤟🖥 Update a Rubric</button>
-          )}
-        </nav>
-      </form>
+          >
+            <option value="">Choose a Rubric</option>
+            {rubrics?.map(
+              ({ id, name }: { id: string, name: string }) => (
+                <option key={id} value={id}>{name}</option>
+              )
+            )}
+          </select>
+        </form>
+      )}
       <ul className={tyl.listGrid}>
         {Object.entries(counts).map(([id, count]) => {
           const weight = weights?.[id] ?? rubric?.default_weight ?? 0

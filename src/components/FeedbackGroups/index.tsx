@@ -14,9 +14,6 @@ import { useFeedbacks, useGroups, useSelected } from './queries'
 import tyl from './index.module.css'
 import formtyl from '../../styles/form.module.css'
 
-interface EditFormElements extends HTMLFormControlsCollection {
-  group: HTMLSelectElement
-}
 interface NewFormElements extends HTMLFormControlsCollection {
   title: HTMLInputElement
   description: HTMLInputElement
@@ -28,7 +25,6 @@ export const FeedbackGroups = () => {
   const [title, setTitle] = useState<string>()
   const [description, setDescription] = useState<string>()
   const [uuid, setUUID] = useState<string>()
-  const [uuidHold, setUUIDHold] = useState<string>()
   const [editing, setEditing] = useState<Feedback>()
   const [checks, setChecks] = useState<CheckState>({})
   const bulkDialog = useRef<HTMLDialogElement>(null)
@@ -81,10 +77,7 @@ export const FeedbackGroups = () => {
     refetchFeedbacks()
   }, [refetchFeedbacks])
 
-  const onGroupEdit = async (evt: FormEvent<HTMLFormElement>) => {
-    evt.preventDefault()
-    const elements = evt.currentTarget.elements as EditFormElements
-    const uuid = elements.group.value
+  const onGroupEdit = async (uuid: string) => {
     setUUID(uuid)
     const group = groups?.find(({ id }) => id === uuid)
     if(uuid && !group) throw new Error(`Group "${uuid}" not found.`)
@@ -94,7 +87,6 @@ export const FeedbackGroups = () => {
 
   const resetForm = () => {
     setUUID(undefined)
-    setUUIDHold(undefined)
     setTitle(undefined)
     setDescription(undefined)
     setChecks({})
@@ -152,13 +144,14 @@ export const FeedbackGroups = () => {
     refetchGroups()
   }
 
-  console.debug({ groups })
-
   return (
     <section>
       <Header>
         <h1>Reactions</h1>
-        <button onClick={addClick} className="square">➕</button>
+        <button
+          className={`square ${formtyl.add}`}
+          onClick={addClick}
+      >➕</button>
       </Header>
       <FeedbackDialog
         ref={addDialog}
@@ -170,12 +163,15 @@ export const FeedbackGroups = () => {
         {...{ onClose }}
       />
       {loadingGroups ? <p>Loading…</p> : (
-        <form onSubmit={onGroupEdit} id={tyl.edit}>
+        <form
+          id={tyl.edit}
+          className={formtyl.buttons}
+        >
           <select
             id="group"
-            value={uuidHold ?? ''}
+            value={uuid ?? ''}
             onChange={({ target: { value } }) => {
-              setUUIDHold(value)
+              onGroupEdit(value)
             }}
           >
             <option value="">None</option>
@@ -186,14 +182,15 @@ export const FeedbackGroups = () => {
               >{group.title}</option>
             ))}
           </select>
-          <button>Edit Group</button>
           <button
+            className={formtyl.add}
             type="button"
             onClick={() => {
               bulkDialog.current?.showModal()
             }}
           >Bulk Add Groups</button>
           <button
+            className={formtyl.export}
             type="button"
             onClick={() => {
               const fbs = feedbacks?.map(
@@ -206,6 +203,7 @@ export const FeedbackGroups = () => {
             }}
           >Export as JSON5</button>
           <button
+            className={formtyl.export}
             type="button"
             onClick={() => {
               const fbs = feedbacks?.map(
@@ -220,10 +218,10 @@ export const FeedbackGroups = () => {
         </form>
       )}
       <DisplayDialog ref={displayDialog}>
-        <pre>{output}</pre>
+        <output><pre>{output}</pre></output>
       </DisplayDialog>
       <form onSubmit={onNewGroup} id={tyl.new}>
-        {loadingFeedbacks || (!!uuid && loadingSelected) ? (
+        {loadingFeedbacks || loadingSelected ? (
           <p>Loading…</p>
         ) : (
           <>
@@ -258,7 +256,7 @@ export const FeedbackGroups = () => {
             ))}
           </>
         )}
-        <section className={tyl.newGroup}>
+        <section className={`${tyl.newGroup} ${formtyl.buttons}`}>
           {uuid && <input type="hidden" id="uuid" value={uuid}/>}
           <input
             id="title"
@@ -276,13 +274,17 @@ export const FeedbackGroups = () => {
               setDescription(value)
             )}
           />
-          <button>{uuid ? 'Update' : 'Create'} Group</button>
+          <button className={formtyl.add}>
+            {uuid ? 'Update' : 'Create'} Group
+          </button>
           <button
+            className={formtyl.reset}
             type="button"
             onClick={resetForm}
-          >Cancel</button>
+          >Reset</button>
           {uuid && (
             <button
+              className={formtyl.delete}
               type="button"
               onClick={() => deleteGroup(uuid)}
             >Delete Group</button>

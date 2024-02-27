@@ -42,7 +42,7 @@ export const Reactor = () => {
       if(!supabase) throw new Error('Supabase not initialized.')
       const { data, error } = (
         await supabase?.from('videos')
-        .select()
+        .select('*, feedback_groups (id, title)')
         .eq('id', videoUUID)
         .single()
       ) ?? {}
@@ -52,6 +52,7 @@ export const Reactor = () => {
     enabled: !!supabase,
     // suspense: true,
   })
+  console.debug({ videoConfig })
   if(queryError) console.error({ queryError })
   const updatePositions = useCallback(
     () => {
@@ -251,7 +252,9 @@ export const Reactor = () => {
         <Logo/>
       </Link>
       <ReactionSelector
-        feedbackGroupIds={[videoConfig?.feedback_group_id]}
+        feedbackGroupIds={videoConfig?.feedback_groups?.map(
+          ({ id }: { id: string }) => id
+        )}
         ref={dialog}
         onSelect={onReactionSelect}
         {...{

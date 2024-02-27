@@ -1,9 +1,9 @@
-import { ReactNode, useEffect, useRef, useState } from "react"
-import ReactionSelector, { type Feedback } from "../ReactionSelector"
-import { emoji } from "../../lib/utils"
-import KeyMap from "../KeyMap"
+import { ReactNode, useEffect, useRef, useState } from 'react'
+import ReactionSelector, { type Feedback } from '../ReactionSelector'
+import { emoji } from '../../lib/utils'
+import KeyMap from '../KeyMap'
+import { Point } from '../Reactor'
 import tyl from './index.module.css'
-import { Point } from "../Reactor"
 
 export const Reactions = () => {
   const dialog = useRef<HTMLDialogElement>(null)
@@ -39,6 +39,7 @@ export const Reactions = () => {
       document.removeEventListener('keyup', listener)
     }
   }, [])
+
   return (
     <article id={tyl.reactions}>
       <KeyMap

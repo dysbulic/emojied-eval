@@ -49,19 +49,38 @@
   display: flex;
   width: 100%;
   grid-column: 1 / -1;
+
+  & select, & button, & input {
+    font-size: 1.5rem;
+  }
  
   & button {
     flex: 1;
     margin-inline: 0.5rem;
     padding-block: 0.5rem;
 
-    &.cancel {
+    &.cancel, &.delete {
       --button-bg: #EB0900;
       --button-fg: #000;
     }
 
-    &.submit {
+    &.submit, &.add {
       --button-bg: #0F4812;
+      --button-fg: #FFF;
+    }
+
+    &.edit {
+      --button-bg: #020C74;
+      --button-fg: #FFF;
+    }
+
+    &.export {
+      --button-bg: #744A02;
+      --button-fg: #FFF;
+    }
+
+    &.reset {
+      --button-bg: #014955;
       --button-fg: #FFF;
     }
   }
@@ -77,7 +96,6 @@
     line-height: 1.5rem;
     background-color: var(--button-bg);
     color: var(--button-fg);
-    border: 2px solid var(--button-border);
     font-weight: bold;
 
     &:hover {

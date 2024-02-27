@@ -38,7 +38,6 @@ export const ReactionSelector = (
           let query = (
             supabase?.from(`feedbacks_groups`)
             .select(`
-              id,
               feedback_groups (id, title),
               feedbacks (id, image, name, description)
             `)
@@ -125,7 +124,6 @@ export const ReactionSelector = (
         },
         [groups],
       )
-
 
       const listen = useCallback((evt: KeyboardEvent) => {
         if(!groups) throw new Error('No groups defined.')
@@ -263,8 +261,8 @@ export const ReactionSelector = (
         <dialog className={tyl.dialog} ref={dialog}>
           <form method="dialog">
             {loading ? <p>Loading…</p> : (
-              groups?.map((group: FeedbackGroup) => (
-                <section key={group.id} className={tyl.fbGroup}>
+              groups?.map((group: FeedbackGroup, idx) => (
+                <section key={idx} className={tyl.fbGroup}>
                   <header><h2>{group.title}</h2></header>
                   <main>
                     {group.feedbacks?.map((fb?: Feedback) => (

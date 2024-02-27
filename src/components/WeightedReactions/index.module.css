@@ -21,6 +21,7 @@
   & .use-rubric {
     display: flex;
     gap: 1rem;
+    justify-content: center;
 
     & nav {
       display: flex;

@@ -3,6 +3,8 @@
   max-height: 15vh;
   justify-content: space-between;
   align-items: center;
+  width: 85vw;
+  margin-inline: auto;
 
   & img {
     height: 15vh;

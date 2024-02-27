@@ -8,7 +8,7 @@ export const useVideos = (supabase: SupabaseClient) => {
       enabled: !!supabase,
       queryFn: async () => {
         const { data, error } = (
-          await supabase?.from('videos').select()
+          await supabase?.from('videos').select('*, feedback_groups (*)')
         ) ?? {}
         if(error) throw error 
         return data

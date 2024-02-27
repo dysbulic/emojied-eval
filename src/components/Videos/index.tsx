@@ -3,15 +3,19 @@ import { useSupabase } from '../../lib/useSupabase'
 import Header from '../Header'
 import VideoDialog from '../VideoDialog'
 import { Link } from 'react-router-dom'
-import tyl from './index.module.css'
 import { useVideos } from './queries'
+import tyl from './index.module.css'
+import formtyl from '../../styles/form.module.css'
 
+export type FeedbackGroup = {
+  id: string
+}
 export type Video = {
   id?: string
   url: string
   title: string
   description: string
-  feedback_group_id?: string
+  feedback_groups?: Array<FeedbackGroup>
   duration?: Maybe<string>
 }
 type Maybe<T> = T | null | undefined
@@ -58,23 +62,34 @@ export const Videos = () => {
         ref={dialogRef}
       />
       <main className={tyl.olTable}>
-        {loading ? <p>Loading…</p> : (
-          <ol>
-            {videos?.map((vid) => (
-              <li key={vid.id}>
-                <h2><Link to={`/eval/${vid.id}`}>
-                  {vid.title}
-                </Link></h2>
-                <div>{vid.description}</div>
-                <nav>
-                  <button onClick={() => edit(vid.id)}>🖉</button>
-                  <button onClick={() => remove(vid.id)}>➖</button>
-                  <Link to={`/score/${vid.id}`}>🎼</Link>
-                </nav>
-              </li>
-            ))}
-          </ol>
-        )}
+        {(() => {
+          if(loading) return <p>Loading…</p>
+          if(videos && videos.length === 0) {
+            return (
+              <section className={tyl.none}>
+                <p>No videos found.</p>
+                <button onClick={addClick}>Create One</button>
+              </section>
+            )
+          }
+          return (
+            <ol>
+              {videos?.map((vid) => (
+                <li key={vid.id}>
+                  <h2><Link to={`/eval/${vid.id}`}>
+                    {vid.title}
+                  </Link></h2>
+                  <div>{vid.description}</div>
+                  <nav className={formtyl.options}>
+                    <button onClick={() => edit(vid.id)}>🖉</button>
+                    <button onClick={() => remove(vid.id)}>➖</button>
+                    <Link to={`/score/${vid.id}`}>🎼</Link>
+                  </nav>
+                </li>
+              ))}
+            </ol>
+          )
+        })()}
       </main>
     </article>
   )

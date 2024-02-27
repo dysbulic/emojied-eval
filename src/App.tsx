@@ -2,6 +2,7 @@ import React, { Suspense } from 'react' // This is the only line that changed
 import { HashRouter as Router, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import './App.css'
+import { Rubrics } from './components/Rubrics'
 
 const Home = React.lazy(() => import('./components/Home'))
 const Configuration = React.lazy(() => import('./components/Configuration'))
@@ -60,6 +61,11 @@ export const App = () => (
         <Route path="/score/:uuid" element={
           <Suspense fallback={<em>Loading Score…</em>}>
             <Score/>
+          </Suspense>
+        }/>
+        <Route path="/rubrics" element={
+          <Suspense fallback={<em>Loading Rubrics…</em>}>
+            <Rubrics/>
           </Suspense>
         }/>
       </Routes>

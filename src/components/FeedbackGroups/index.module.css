@@ -34,10 +34,6 @@
     grid-column: 1 / -1;
     gap: 1rem;
     margin-top: 4rem;
-
-    & input, & button {
-      font-size: 1.75rem;
-    }
   }
 }
 
@@ -75,10 +71,5 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-
-  & select, & button {
-    font-size: 1.75rem;
-  }
+  margin-block: 2rem;
 }
