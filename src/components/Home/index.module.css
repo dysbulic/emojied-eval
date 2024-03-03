@@ -13,11 +13,6 @@
     font-size: 15pt;
     border-radius: 0.5rem;
     padding: 0.5rem 1rem;
-
-    &:hover {
-      background-color: #f0f0f0;
-      color: #000;
-    }
   }
 }
 
@@ -27,13 +22,18 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background-color: #f0f0f0;
+  color: var(--bg);
+  background-color: var(--fg);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 
   & a {
     text-decoration: none;
-    color: #000;
+    color: var(--hover-fg);
     font-size: 15pt;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   & li:hover {

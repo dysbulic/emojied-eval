@@ -2,18 +2,26 @@ import { MouseEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import toast, { Toaster } from 'react-hot-toast'
 import { useQuery } from '@tanstack/react-query'
-import { useAnimationFrame } from '../../lib/utils'
+import { useAnimationFrame, timeToSeconds } from '../../lib/utils';
 import { Drifter } from '../../Drifter'
 import { KeyMap } from '../KeyMap'
 import { useSupabase } from '../../lib/useSupabase'
-import { type Reaction } from '../ReactionDialog'
 import tyl from './index.module.css'
 import ReactionSelector from '../ReactionSelector'
 import Logo from '../Logo'
+import { Reaction } from '../ReactionDialog';
 
 export type DrifterConfig = {
   at?: { x: number, y: number },
   time?: number,
+}
+
+export type SupabaseReaction = {
+  start_time: string,
+  end_time: string,
+  initial_x: number,
+  initial_y: number,
+  feedbacks: { image: string },
 }
 
 export type Point = { x: number, y: number }
@@ -37,23 +45,59 @@ export const Reactor = () => {
   const {
     /* isLoading: loading, */ error: queryError, data: videoConfig,
   } = useQuery({
+    enabled: !!supabase,
     queryKey: ['Reactor', { uuid: videoUUID, supabase }],
     queryFn: async () => {
       if(!supabase) throw new Error('Supabase not initialized.')
       const { data, error } = (
         await supabase?.from('videos')
-        .select('*, feedback_groups (id, title)')
+        .select(`
+          *,
+          feedback_groups (id, title),
+          reactions (
+            start_time, end_time,
+            initial_x, initial_y,
+            feedbacks (*)
+          )
+        `)
         .eq('id', videoUUID)
         .single()
       ) ?? {}
       if(error) throw error 
       return data
     },
-    enabled: !!supabase,
     // suspense: true,
   })
-  console.debug({ videoConfig })
   if(queryError) console.error({ queryError })
+
+  console.debug({ videoConfig })
+
+  useEffect(() => {
+    if(videoConfig) {
+      drifters.current = (
+        videoConfig.reactions.map((react: SupabaseReaction) => {
+          if(!overlay.current) {
+            throw new Error('Overlay ref is not set.')
+          }
+
+          const start = timeToSeconds(react.start_time) * 1000
+          const end = timeToSeconds(react.end_time) * 1000
+          const initial = {
+            x: react.initial_x,
+            y: react.initial_y,
+          }
+          const content = react.feedbacks.image
+
+          return new Drifter({
+            start, end, initial, content,
+            parent: overlay.current,
+            className: tyl.drifting ,
+          })
+        })
+      )
+    }
+  }, [videoConfig])
+
   const updatePositions = useCallback(
     () => {
       if(video.current) {
@@ -131,6 +175,13 @@ export const Reactor = () => {
       default: { null }
     }
   }, [wasPlaying])
+
+  useEffect(() => {
+    document.addEventListener('keyup', listener)
+    return () => {
+      document.removeEventListener('keyup', listener)
+    }
+  }, [listener])
 
   const onClick = useCallback(
     (evt: MouseEvent<HTMLDivElement>) => {
@@ -215,13 +266,6 @@ export const Reactor = () => {
       })
     }
   }
-
-  useEffect(() => {
-    document.addEventListener('keyup', listener)
-    return () => {
-      document.removeEventListener('keyup', listener)
-    }
-  }, [listener])
 
   const onKeySelect = (at: Point) => {
     if(!video.current) throw new Error('<video> ref is not set.')

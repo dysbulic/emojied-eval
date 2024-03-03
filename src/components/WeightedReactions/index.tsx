@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { ReactedVideo } from '../Score'
 import useSupabase from '../../lib/useSupabase'
 import { emoji } from '../../lib/utils'
-import { useFeedbacksIn, useRubrics, useWeights } from './queries'
+import { useFeedbacksIn } from './queries'
 import tyl from './index.module.css'
-import formtyl from '../../styles/form.module.css'
 
 type Maybe<T> = T | null | undefined
 export type Rubric = {
@@ -15,7 +13,12 @@ export type Rubric = {
 }
 
 export const WeightedReactions = (
-  { video }: { video: ReactedVideo }
+  { video, rubric, weights: defaultWeights }:
+  {
+    video: ReactedVideo
+    rubric: Maybe<Rubric>
+    weights: Maybe<Record<string, number>>
+  }
 ) => {
   const counts = useMemo(() => {
     const counts: Record<string, number> = {}
@@ -25,17 +28,12 @@ export const WeightedReactions = (
     })
     return counts
   }, [video?.reactions])
-  const [rubric, setRubric] = useState<Maybe<Rubric>>()
   const [weights, setWeights] = (
     useState<Record<string, number | string>>({})
   )
   const { supabase } = useSupabase()
   const { data: feedbacks } = useFeedbacksIn(
     supabase, Object.keys(counts),
-  )
-  const { data: rubrics } = useRubrics(supabase)
-  const { data: defaultWeights } = useWeights(
-    supabase, rubric, Object.keys(counts),
   )
   useEffect(() => {
     if(defaultWeights) setWeights(defaultWeights)
@@ -44,31 +42,6 @@ export const WeightedReactions = (
   return (
     <section id={tyl.reactions}>
       <h2>Weighted Reactions</h2>
-      {!rubrics || rubrics.length === 0 ? (
-        <Link to="/rubrics">Create a Rubric</Link>
-      ) : (
-        <form
-          className={`${tyl['use-rubric']} ${formtyl.buttons}`}
-        >
-          <select
-            value={rubric?.id}
-            onChange={({ target: { value } }) => {
-              setRubric(rubrics?.find((
-                { id }: { id: string }
-              ) => (
-                id === value
-              )))
-            }}
-          >
-            <option value="">Choose a Rubric</option>
-            {rubrics?.map(
-              ({ id, name }: { id: string, name: string }) => (
-                <option key={id} value={id}>{name}</option>
-              )
-            )}
-          </select>
-        </form>
-      )}
       <ul className={tyl.listGrid}>
         {Object.entries(counts).map(([id, count]) => {
           const weight = weights?.[id] ?? rubric?.default_weight ?? 0

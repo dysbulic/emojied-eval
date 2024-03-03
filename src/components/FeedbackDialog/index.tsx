@@ -103,7 +103,7 @@ export const FeedbackDialog = forwardRef<HTMLDialogElement, Props>(
           {image && (
             emoji(image, { className: formtyl.center })
           )}
-          <section className={formtyl.buttons}>
+          <section className={`${formtyl.buttons} ${formtyl.full}`}>
             <button
               type="button"
               className={formtyl.cancel}

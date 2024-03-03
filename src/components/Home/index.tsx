@@ -32,11 +32,11 @@ export const Home = () => {
         <main>
           <nav>
             <ul id={tyl.mainnav}>
-              <li><Link to="/reactions">Reactions</Link></li>
-              <li><Link to="/rubrics">Rubrics</Link></li>
-              <li><Link to="/videos">Videos</Link></li>
-              <li><Link to="/config">Configure</Link></li>
-              <li><Link to="/selector">Reaction Selector</Link></li>
+              <li>Step #1: <Link to="/reactions">😶 Define Some Reactions</Link></li>
+              <li>Step #2: <Link to="/videos">📽 React To A Video</Link></li>
+              <li>Step #3: <Link to="/rubrics">🥅 Create A Rubrics</Link></li>
+              <li>Optional: <Link to="/config">⚙ Configure The UI</Link></li>
+              <li>Testing: <Link to="/selector">⛏ Reaction Selector</Link></li>
             </ul>
           </nav>
         </main>

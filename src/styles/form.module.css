@@ -47,15 +47,12 @@
 
 & .buttons {
   display: flex;
-  width: 100%;
-  grid-column: 1 / -1;
 
   & select, & button, & input {
     font-size: 1.5rem;
   }
  
-  & button {
-    flex: 1;
+  & button, & a {
     margin-inline: 0.5rem;
     padding-block: 0.5rem;
 
@@ -89,10 +86,8 @@
 .options {
   & button, & a {
     aspect-ratio: 1;
-    font-size: 1.25rem;
     border-radius: 0.5rem;
-    margin-inline: 0.5rem;
-    padding: 0.5rem;
+    padding: 0.25rem;
     line-height: 1.5rem;
     background-color: var(--button-bg);
     color: var(--button-fg);
@@ -104,3 +99,12 @@
   }
 }
 
+.full {
+  grid-column: 1 / -1;
+  display: flex;
+  width: 100%;
+
+  & > * {
+    flex: 1;
+  }
+}

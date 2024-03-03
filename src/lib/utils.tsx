@@ -62,5 +62,11 @@ export const useAnimationFrame = (
   }, [animate, cleanup]) // Make sure the effect runs only once
 }
 
-
 export const here = (any: unknown) => !!any
+
+export const timeToSeconds = (time: string) => {
+  const [hours, minutes, seconds] = (
+    time.split(':').map(Number)
+  )
+  return (((hours * 60) + minutes) * 60) + seconds
+}

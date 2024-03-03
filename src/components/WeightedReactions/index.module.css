@@ -17,16 +17,4 @@
   & input, & output {
     text-align: center;
   }
-
-  & .use-rubric {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-
-    & nav {
-      display: flex;
-      gap: 1rem;
-      flex-direction: column;
-    }
-  }
 }

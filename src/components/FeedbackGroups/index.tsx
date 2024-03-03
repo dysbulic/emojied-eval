@@ -148,10 +148,12 @@ export const FeedbackGroups = () => {
     <section>
       <Header>
         <h1>Reactions</h1>
-        <button
-          className={`square ${formtyl.add}`}
-          onClick={addClick}
-      >➕</button>
+        <nav className={formtyl.buttons}>
+          <button
+            className={`square ${formtyl.add}`}
+            onClick={addClick}
+          >➕</button>
+        </nav>
       </Header>
       <FeedbackDialog
         ref={addDialog}
@@ -242,12 +244,14 @@ export const FeedbackGroups = () => {
                 {emoji(feedback.image)}
                 <h2>{feedback.name}</h2>
                 <div className={tyl.center}>{feedback.description}</div>
-                <nav className={formtyl.options}>
+                <nav className={`${formtyl.options} ${formtyl.buttons}`}>
                   <button
+                    className={formtyl.edit}
                     type="button"
                     onClick={() => editClick(feedback)}
                   >🖉</button>
                   <button
+                    className={formtyl.delete}
                     type="button"
                     onClick={() => deleteClick(feedback)}
                   >➖</button>
