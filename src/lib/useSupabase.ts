@@ -13,7 +13,7 @@ export type ReturnType = {
 export const useSupabase = () => {
   const jwt = localStorage.getItem(supaConfig.jwtStorageKey)
   const [supabase, setSupabase] = (
-    useState(createClient(supaConfig.url, jwt || supaConfig.anonKey))
+    useState(createClient(supaConfig.url, supaConfig.anonKey))
   )
   const [error, setError] = useState<Maybe<string>>(null)
 
@@ -30,7 +30,13 @@ export const useSupabase = () => {
           throw new Error(`JWT has expired (${new Date(exp).toLocaleString()}).`)
         }
 
-        setSupabase(createClient(supaConfig.url, jwt))
+        setSupabase(createClient(
+          supaConfig.url,
+          supaConfig.anonKey,
+          { global: {
+            headers: { Authorization: `Bearer ${jwt}` },
+          } },
+        ))
       } catch(err) {
         console.error({ err })
         setError((err as Error).message)
