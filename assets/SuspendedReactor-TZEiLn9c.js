@@ -1,0 +1,1 @@
+import{j as r,r as e}from"./index-CLGkLqZk.js";import{Reactor as s}from"./index-JgYrVc5h.js";import"./index-DUfFQ6HI.js";const i=()=>r.jsx(e.Suspense,{fallback:r.jsx("div",{children:"Loading…"}),children:r.jsx(s,{})});export{i as SuspendedReactor,i as default};
