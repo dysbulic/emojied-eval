@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import useSupabase from '../../lib/useSupabase'
 import { emoji } from '../../lib/utils';
 import tyl from './index.module.css'
+import { Maybe } from '../FeedbackBulkAddDialog';
 
 export type Feedback = {
   id: string
@@ -14,7 +15,7 @@ export type Feedback = {
   description: string
 }
 export type FeedbackGroup = {
-  id: string
+  id: Maybe<string>
   title: string
   feedbacks?: Array<Feedback | undefined>
 }
@@ -33,25 +34,24 @@ export const ReactionSelector = (
     ({ onSelect, feedbackGroupIds }, dialog) => {
       const { supabase } = useSupabase()
       const { data: groups, error, isLoading: loading } = useQuery({
+        enabled: !!supabase,
         queryKey: ['Reactions', { supabase }],
         queryFn: async () => {
-          let query = (
-            supabase?.from(`feedbacks_groups`)
-            .select(`
-              feedback_groups (id, title),
-              feedbacks (id, image, name, description)
-            `)
-          )
+          if(!supabase) throw new Error('`supabase` not defined.')
           if(
             feedbackGroupIds
             && feedbackGroupIds.filter((g) => !!g).length > 0
           ) {
-            query = query?.in('group_id', feedbackGroupIds)
-          }
-          const { data: feedbacks } = await query ?? {}
-          if(feedbacks) {
+            const { data: feedbacks } = (
+              await supabase?.from(`feedbacks_groups`)
+              .select(`
+                feedback_groups (id, title),
+                feedbacks (id, image, name, description)
+              `)
+              .in('group_id', feedbackGroupIds)
+            ) ?? { data: [] }
             const groups$ = (
-              of(...feedbacks)
+              of(...(feedbacks ?? []))
               .pipe(
                 groupBy(
                   ({ feedback_groups: group }) => {
@@ -84,9 +84,18 @@ export const ReactionSelector = (
               )
             )
             return lastValueFrom(groups$)
+          } else {
+            const { data: feedbacks } = (
+              await supabase?.from(`feedbacks`)
+              .select('id, image, name, description')
+            ) ?? { data: [] }
+            return [{
+              id: null,
+              title: 'Reactions',
+              feedbacks: feedbacks ?? [],
+            }]
           }
         },
-        enabled: !!supabase,
       })
       if(error) throw error
 
@@ -261,15 +270,15 @@ export const ReactionSelector = (
         <dialog className={tyl.dialog} ref={dialog}>
           <form method="dialog">
             {loading ? <p>Loading…</p> : (
-              groups?.map((group: FeedbackGroup, idx) => (
+              groups?.map((group: FeedbackGroup | null, idx) => (
                 <section key={idx} className={tyl.fbGroup}>
-                  <header><h2>{group.title}</h2></header>
+                  <header><h2>{group?.title}</h2></header>
                   <main>
-                    {group.feedbacks?.map((fb?: Feedback) => (
+                    {group?.feedbacks?.map((fb?: Feedback) => (
                       (fb && (
                         <button
                           key={fb.id}
-                          id={`${group.id}-${fb.id}`}
+                          id={`${group.id ?? idx}-${fb.id}`}
                           className="reaction"
                           onClick={(evt) => onSelect?.(fb, evt)}
                         >

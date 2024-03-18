@@ -3,40 +3,42 @@ import { supabase as supaConfig } from '../config.ts'
 import { decodeJwt as decodeJWT } from 'jose'
 import { useEffect, useState } from 'react'
 
-type Maybe<T> = T | null
+type Maybe<T> = T | null | undefined
 export type ReturnType = {
-  supabase: SupabaseClient
+  supabase?: Maybe<SupabaseClient>
   hasJWT: boolean
   error?: string
 }
 
 export const useSupabase = () => {
   const jwt = localStorage.getItem(supaConfig.jwtStorageKey)
-  const [supabase, setSupabase] = (
-    useState(createClient(supaConfig.url, supaConfig.anonKey))
-  )
   const [error, setError] = useState<Maybe<string>>(null)
+  const [supabase, setSupabase] = (
+    useState<Maybe<SupabaseClient>>(createClient(
+      supaConfig.url,
+      supaConfig.anonKey,
+      { global: {
+        headers: { Authorization: `Bearer ${jwt}` },
+      } },
+    ))
+  )
 
   useEffect(() => {
     setError(null)
     const build = async () => {
       try {
         if(!jwt) {
-          throw new Error('No JWT found in localStorage.')
+          setSupabase(undefined)
+        } else {
+          const { exp } = await decodeJWT(jwt)
+          if(exp != null && exp * 1000 < Date.now()) {
+            console.warn(
+              `Removing expired (${exp} < ${Date.now()}) JWT: "${jwt}".`
+            )
+            localStorage.removeItem(supaConfig.jwtStorageKey)
+            setSupabase(undefined)
+          }
         }
-        const { exp } = await decodeJWT(jwt)
-        if(exp && exp < Date.now()) {
-          localStorage.removeItem(supaConfig.jwtStorageKey)
-          throw new Error(`JWT has expired (${new Date(exp).toLocaleString()}).`)
-        }
-
-        setSupabase(createClient(
-          supaConfig.url,
-          supaConfig.anonKey,
-          { global: {
-            headers: { Authorization: `Bearer ${jwt}` },
-          } },
-        ))
       } catch(err) {
         console.error({ err })
         setError((err as Error).message)

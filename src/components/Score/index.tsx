@@ -59,7 +59,10 @@ export const Score = () => {
           </Link></q></h1>
         </Header>
         {!rubrics || rubrics.length === 0 ? (
-          <Link to="/rubrics">Create a Rubric</Link>
+          <Link
+            to="/rubrics"
+            className="button"
+          >Create a Rubric</Link>
         ) : (
           <form
             className={`${tyl['use-rubric']} ${formtyl.buttons}`}

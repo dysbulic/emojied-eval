@@ -8,6 +8,7 @@ import { emoji } from '../../lib/utils'
 import tyl from './index.module.css'
 import formtyl from '../../styles/form.module.css'
 import Header from '../Header'
+import { Link } from 'react-router-dom'
 
 interface FormElements extends HTMLFormControlsCollection {
   defaultWeight: HTMLInputElement
@@ -38,7 +39,7 @@ export const Rubrics = () => {
     const defaultWeight = Number(elements.defaultWeight.value)
 
     const { data: newRubric } = (
-      await supabase.from('rubrics')
+      await supabase?.from('rubrics')
       .upsert({
         id: rubric?.id,
         name: elements.name.value,
@@ -46,7 +47,7 @@ export const Rubrics = () => {
       })
       .select()
       .single()
-    )
+    ) ?? {}
 
     const weights: Array<{
       feedback_id: string
@@ -65,11 +66,11 @@ export const Rubrics = () => {
       }
     })
 
-    await supabase.from('feedbacks_weights')
+    await supabase?.from('feedbacks_weights')
     .delete()
     .eq('rubric_id', rubric?.id)
 
-    await supabase.from('feedbacks_weights')
+    await supabase?.from('feedbacks_weights')
     .insert(weights)
 
     refetchRubrics()
@@ -83,7 +84,7 @@ export const Rubrics = () => {
   }
 
   const deleteRubric = async (id: string) => {
-    await supabase.from('rubrics')
+    await supabase?.from('rubrics')
     .delete()
     .eq('id', id)
 
@@ -95,6 +96,17 @@ export const Rubrics = () => {
   return (
     <section id={tyl.rubrics}>
       <Header><h1>Rubrics</h1></Header>
+      {!feedbacks || feedbacks.length === 0 && (
+        <>
+          <p>
+            This area is for assigning scoring weights to reactions.{' '}
+            No reactions have been created yet.
+          </p>
+          <Link to="/reactions" className="button">
+            Create Reactions
+          </Link>
+        </>
+      )}
       {rubrics && rubrics.length > 0 && (
         <form className={`${formtyl.buttons} ${tyl.load}`}>
           <select
@@ -145,6 +157,9 @@ export const Rubrics = () => {
                 <h2>{name}</h2>
                 <input
                   id={`weight-${id}`}
+                  className={
+                    weights && id in weights ? tyl.has : tyl.default
+                  }
                   type="number"
                   value={weight}
                   onChange={({ target: { value } }) => {
@@ -172,7 +187,7 @@ export const Rubrics = () => {
             id="defaultWeight"
             placeholder="Default Weight"
             type="number"
-            value={defaultWeight ?? 0}
+            value={defaultWeight ?? ''}
             onChange={({ target: { value } }) => {
               setDefaultWeight(Number(value))
             }}

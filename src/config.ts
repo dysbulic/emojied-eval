@@ -101,6 +101,7 @@ export const SIWE = {
     )
     if(error) throw new Error(error)
     if(!jwt) throw new Error('No JWT returned.')
+    if(!supabase) throw new Error('`supabase` is undefined.')
     localStorage.setItem(supabase.jwtStorageKey, jwt)
     return true
   },

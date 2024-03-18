@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { type SupabaseClient } from "@supabase/supabase-js"
+import { Maybe } from '../FeedbackBulkAddDialog'
 
-export const useVideos = (supabase: SupabaseClient) => {
+export const useVideos = (supabase?: Maybe<SupabaseClient>) => {
   return (
     useQuery({
       queryKey: ['Videos', supabase],

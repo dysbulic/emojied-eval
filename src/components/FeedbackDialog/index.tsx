@@ -1,4 +1,5 @@
 import { FormEvent, forwardRef, useEffect, useRef, useState } from 'react'
+import { toast } from 'react-hot-toast'
 import { useSupabase } from '../../lib/useSupabase'
 import { Feedback } from '../ReactionSelector'
 import { emoji } from '../../lib/utils';
@@ -36,9 +37,6 @@ export const FeedbackDialog = forwardRef<HTMLDialogElement, Props>(
     }, [feedback])
 
     const close = () => {
-      setName(undefined)
-      setImage(undefined)
-      setDescription(undefined)
       onClose?.()
       if(!(ref instanceof Function)) {
         ref?.current?.close()
@@ -53,7 +51,13 @@ export const FeedbackDialog = forwardRef<HTMLDialogElement, Props>(
         description: elements.description.value,
         id: elements.id?.value || undefined,
       }
-      await supabase.from('feedbacks').upsert(values)
+      const { error } = (
+        await supabase.from('feedbacks').upsert(values)
+      )
+      if(error) {
+        console.error({ "Supabase Error": error, values })
+        toast.error(error.message)
+      }
       close()
     }
 

@@ -67,7 +67,7 @@ export const FeedbackGroups = () => {
     addDialog.current?.showModal()
   }
   const deleteClick = async (feedback: Feedback) => {
-    await supabase.from('feedbacks')
+    await supabase?.from('feedbacks')
     .delete()
     .eq('id', feedback.id)
 
@@ -144,6 +144,22 @@ export const FeedbackGroups = () => {
     refetchGroups()
   }
 
+  const slimFeedbacks = () => (
+    feedbacks?.map(
+      ({ image, name, description }) => {
+        const fb: {
+          image: string
+          name: string
+          description?: string
+        } = { image, name }
+        if(description) {
+          fb.description = description
+        }
+        return fb
+      }
+    )
+  )
+
   return (
     <section>
       <Header>
@@ -169,38 +185,35 @@ export const FeedbackGroups = () => {
           id={tyl.edit}
           className={formtyl.buttons}
         >
-          <select
-            id="group"
-            value={uuid ?? ''}
-            onChange={({ target: { value } }) => {
-              onGroupEdit(value)
-            }}
-          >
-            <option value="">None</option>
-            {groups?.map((group) => (
-              <option
-                key={group.id}
-                value={group.id}
-              >{group.title}</option>
-            ))}
-          </select>
+          {groups && groups.length > 0 && (
+            <select
+              id="group"
+              value={uuid ?? ''}
+              onChange={({ target: { value } }) => {
+                onGroupEdit(value)
+              }}
+            >
+              <option value="">None</option>
+              {groups?.map((group) => (
+                <option
+                  key={group.id}
+                  value={group.id}
+                >{group.title}</option>
+              ))}
+            </select>
+          )}
           <button
             className={formtyl.add}
             type="button"
             onClick={() => {
               bulkDialog.current?.showModal()
             }}
-          >Bulk Add Groups</button>
+          >Bulk Add</button>
           <button
             className={formtyl.export}
             type="button"
             onClick={() => {
-              const fbs = feedbacks?.map(
-                ({ image, name, description }) => ({
-                  image, name, description,
-                })
-              )
-              setOutput(JSON5.stringify(fbs, null, 2))
+              setOutput(JSON5.stringify(slimFeedbacks(), null, 2))
               displayDialog.current?.showModal()
             }}
           >Export as JSON5</button>

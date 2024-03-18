@@ -2,13 +2,13 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { SiweMessage, SiweErrorType } from 'https://esm.sh/siwe'
 import {
-  Header, Payload, create as createJWT,
-} from 'https://deno.land/x/djwt@v3.0.1/mod.ts'
+  SignJWT,
+} from 'https://deno.land/x/jose@v5.2.2/index.ts'
 import { Database } from '../lib/database.types.ts'
-import { cors, getSession } from '../lib/utils.ts';
+import { cors, getSession } from '../lib/utils.ts'
 import {
   decodeBase64
-} from "https://deno.land/std/encoding/base64.ts"
+} from 'https://deno.land/std/encoding/base64.ts'
 
 function createErrorResponse({
   error,
@@ -116,25 +116,36 @@ serve(async (req) => {
     }
     rawJWTSecret = new TextEncoder().encode(rawJWTSecret)
 
-    const key = await crypto.subtle.importKey(
-      'raw', // format of the key's data
-      rawJWTSecret,
-      { name: 'HMAC', hash: 'SHA-256' },
-      true, // whether the key is extractable
-      ['sign', 'verify'], // key usages
-    )
+    // const key = await crypto.subtle.importKey(
+    //   'raw', // format of the key's data
+    //   rawJWTSecret,
+    //   { name: 'HMAC', hash: 'SHA-256' },
+    //   false, // whether the key is extractable
+    //   ['sign', 'verify'], // key usages
+    // )
 
-    const payload: Payload = {
-      iss: 'https://code.trwb.live',
-      sub: authedUser.id,
-      aud: authedUser.aud,
-      email: authedUser.email,
-      role: authedUser.role,
-      address,
-      exp: new Date().getTime() + 1000 * 60 * 60 * 24 * 7,
-    }
-    const header: Header = { alg: 'HS256', typ: 'JWT' }
-    const jwt = await createJWT(header, payload, key)
+    // const payload: Payload = {
+    //   iss: 'https://code.trwb.live',
+    //   sub: authedUser.id,
+    //   aud: authedUser.aud,
+    //   email: authedUser.email,
+    //   role: authedUser.role,
+    //   address,
+    //   exp: new Date().getTime() + 1000 * 60 * 60 * 24 * 7,
+    // }
+    // const header: Header = { alg: 'HS256', typ: 'JWT' }
+    // const jwt = await createJWT(header, payload, key)
+
+    const jwt = (
+      await new SignJWT({ address, role: authedUser.role })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setIssuer('https://code.trwb.live')
+      .setAudience(authedUser.aud)
+      .setSubject(authedUser.id)
+      .setExpirationTime('7d')
+      .sign(rawJWTSecret)
+    )
 
     headers.append('Content-Type', 'text/plain')
     return new Response(jwt, { headers })

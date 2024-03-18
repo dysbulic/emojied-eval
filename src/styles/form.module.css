@@ -48,10 +48,10 @@
 & .buttons {
   display: flex;
 
-  & select, & button, & input {
+  & select, & button, & input, & a {
     font-size: 1.5rem;
   }
- 
+
   & button, & a {
     margin-inline: 0.5rem;
     padding-block: 0.5rem;
@@ -96,6 +96,10 @@
     &:hover {
       filter: brightness(1.5);
     }
+  }
+
+  & a {
+    padding-top: 0.75rem;
   }
 }
 

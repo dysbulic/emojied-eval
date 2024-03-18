@@ -55,7 +55,12 @@ export const Videos = () => {
     <article id={tyl.outer}>
       <Header>
         <h1>Videos</h1>
-        <button onClick={addClick} className="square">➕</button>
+        <nav className={formtyl.buttons}>
+          <button
+            onClick={addClick}
+            className={`${formtyl.add} square`}
+          >➕</button>
+        </nav>
       </Header>
       <VideoDialog
         {...{ video, onClose }}
@@ -91,7 +96,7 @@ export const Videos = () => {
                     >➖</button>
                     <Link
                       to={`/score/${vid.id}`}
-                      className={formtyl.score}
+                      className={`${formtyl.score} square`}
                     >🎼</Link>
                   </nav>
                 </li>

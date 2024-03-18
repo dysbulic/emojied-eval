@@ -162,13 +162,15 @@ export const VideoDialog = forwardRef(
               </select>
             )}
           </label>
-          <div className={formtyl.buttons}>
+          <div className={`${formtyl.buttons} gridfull`}>
             <button
               type="button"
               onClick={close}
               className={formtyl.cancel}
             >Cancel</button>
-            <button className={formtyl.submit}>{video ? 'Update' : 'Create'}</button>
+            <button className={formtyl.submit}>
+              {video ? 'Update' : 'Create'}
+            </button>
           </div>
         </form>
       </dialog>

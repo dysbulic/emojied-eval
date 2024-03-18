@@ -32,3 +32,10 @@
   max-width: min(100%, 55ch);
 }
 
+.has {
+  border-color: var(--button-border);
+}
+
+.default {
+  border-color: var(--button-fg);
+}

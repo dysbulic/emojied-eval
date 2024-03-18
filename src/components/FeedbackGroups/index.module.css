@@ -17,7 +17,7 @@
     }
 
     & h2 {
-      margin: 0;
+      margin-block: 0;
     }
   }
 }
@@ -28,12 +28,21 @@
 
   & label {
     display: contents;
+
+    &:hover {
+      background-color: var(--hover-bg);
+    }
   }
 
   & section {
     grid-column: 1 / -1;
     gap: 1rem;
     margin-top: 4rem;
+  }
+
+  & h2 {
+    margin-block: 0;
+    align-self: center;
   }
 }
 

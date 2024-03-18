@@ -31,15 +31,15 @@
   --button-disabled-fg: #27253755;
   --button-disabled-bg: #A28276;
 
-  & button:focus {
+  & button:focus, & .button:focus {
     --button-bg: var(--button-focus-bg);
     --button-fg: var(--button-focus-fg);
   }
-  & button:hover {
+  & button:hover, & .button:hover {
     --button-bg: var(--button-hover-bg);
     --button-fg: var(--button-hover-fg);
   }
-  & button[disabled] {
+  & button[disabled], & .button[disabled] {
     --button-bg: var(--button-disabled-bg);
     --button-fg: var(--button-disabled-fg);
   }
@@ -71,13 +71,14 @@ html, body {
   margin: 0;
 }
 
-button {
+button, .button {
   border: 2px solid var(--button-border);
   border-radius: 0.5rem;
   background-color: var(--button-bg);
   color: var(--button-fg);
   cursor: pointer;
   transition: background-color 0.2s;
+  padding: 0.25rem 0.4rem;
 }
 
 #home {
@@ -101,4 +102,13 @@ button {
 
 .square {
   aspect-ratio: 1;
+}
+
+.gridfull {
+  grid-column: 1 / -1;
+  display: flex;
+
+  & > * {
+    flex-grow: 1;
+  }
 }

@@ -66,11 +66,11 @@ export const Reactor = () => {
       if(error) throw error 
       return data
     },
-    // suspense: true,
   })
-  if(queryError) console.error({ queryError })
-
-  console.debug({ videoConfig })
+  if(queryError) {
+    console.error({ queryError })
+    toast.error((queryError as Error).message)
+  }
 
   useEffect(() => {
     if(videoConfig) {

@@ -5,27 +5,27 @@ import { Rubric } from '.'
 type Maybe<T> = T | null | undefined
 
 export const useFeedbacksIn = (
-  supabase: SupabaseClient, ids: Array<string>
+  supabase: Maybe<SupabaseClient>, ids: Array<string>
 ) => {
   return useQuery({
     enabled: !!supabase,
     queryKey: ['feedbacks', ids, supabase],
     queryFn: async () => {
       const { data, error } = (
-        await supabase.from('feedbacks')
+        await supabase?.from('feedbacks')
         .select()
         .in('id', ids as Array<string>)
-      )
+      ) ?? {}
       if(error) throw error
       return Object.fromEntries(
-        data.map(({ id, image }) => [id, image])
+        data?.map(({ id, image }) => [id, image]) ?? []
       )
     },
   })
 }
 
 export const useRubrics = (
-  supabase: SupabaseClient
+  supabase: Maybe<SupabaseClient>
 ) => {
  return (
   useQuery({
@@ -33,9 +33,9 @@ export const useRubrics = (
     queryKey: ['rubrics', supabase],
     queryFn: async () => {
       const { data, error } = (
-        await supabase.from('rubrics')
+        await supabase?.from('rubrics')
         .select('id, name, default_weight')
-      )
+      ) ?? {}
       if(error) throw error
       return data
     },
@@ -44,7 +44,7 @@ export const useRubrics = (
 }
 
 export const useWeights = (
-  supabase: SupabaseClient,
+  supabase: Maybe<SupabaseClient>,
   rubric?: Maybe<Rubric>,
   feedback_ids?: Array<string>,
 ) => useQuery({
