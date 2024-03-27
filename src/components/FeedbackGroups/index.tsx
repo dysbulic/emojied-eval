@@ -259,7 +259,7 @@ export const FeedbackGroups = () => {
                 <div className={tyl.center}>{feedback.description}</div>
                 <nav className={`${formtyl.options} ${formtyl.buttons}`}>
                   <button
-                    className={formtyl.edit}
+                    className={`${formtyl.edit} square`}
                     type="button"
                     onClick={() => editClick(feedback)}
                   >🖉</button>

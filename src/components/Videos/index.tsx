@@ -87,11 +87,11 @@ export const Videos = () => {
                   <div>{vid.description}</div>
                   <nav className={`${formtyl.options} ${formtyl.buttons}`}>
                     <button
-                      className={formtyl.edit}
+                      className={`${formtyl.edit} square`}
                       onClick={() => edit(vid.id)}
                     >🖉</button>
                     <button
-                      className={formtyl.delete}
+                      className={`${formtyl.delete} square`}
                       onClick={() => remove(vid.id)}
                     >➖</button>
                     <Link

@@ -57,7 +57,7 @@ serve(async (req) => {
     await iron.save();
 
     const { data: byAddy, error } = (
-      await supabase.from('addresses').upsert(
+      await supabase.from('userinfo').upsert(
         [{ address }], { onConflict: 'address' },
       )
       .single()
@@ -83,7 +83,7 @@ serve(async (req) => {
       authedUser = user
 
       const { updateError } = (
-        await supabase.from('addresses').update({
+        await supabase.from('userinfo').update({
           updated_at: undefined,
           user_id: authedUser.id,
         })

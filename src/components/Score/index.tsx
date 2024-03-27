@@ -39,6 +39,7 @@ export const Score = () => {
           feedback_groups (feedbacks (*)),
           reactions (feedback_id, start_time)
         `)
+        .order('start_time', { referencedTable: 'reactions' })
         .eq('id', videoId)
         .single()
       )
@@ -59,10 +60,12 @@ export const Score = () => {
           </Link></q></h1>
         </Header>
         {!rubrics || rubrics.length === 0 ? (
-          <Link
-            to="/rubrics"
-            className="button"
-          >Create a Rubric</Link>
+          <aside className={tyl.noRubrics}>
+            <Link
+              to="/rubrics"
+              className="button"
+            >Create a Rubric</Link>
+          </aside>
         ) : (
           <form
             className={`${tyl['use-rubric']} ${formtyl.buttons}`}

@@ -34,7 +34,7 @@ export const ReactionSelector = (
     ({ onSelect, feedbackGroupIds }, dialog) => {
       const { supabase } = useSupabase()
       const { data: groups, error, isLoading: loading } = useQuery({
-        enabled: !!supabase,
+        enabled: !!supabase && !!feedbackGroupIds,
         queryKey: ['Reactions', { supabase }],
         queryFn: async () => {
           if(!supabase) throw new Error('`supabase` not defined.')

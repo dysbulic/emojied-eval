@@ -13,3 +13,18 @@
     }
   }
 }
+
+.lineInput {
+  display: flex;
+  align-items: center;
+
+  & h3:after {
+    content: ':';
+    margin-right: 0.5rem;
+  }
+
+  & input {
+    width: min(50vw, 45ch);
+    margin-right: 1rem;
+  }
+}

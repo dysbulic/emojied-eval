@@ -17,4 +17,7 @@
   & input, & output {
     text-align: center;
   }
+  & output {
+    align-self: center;
+  }
 }
